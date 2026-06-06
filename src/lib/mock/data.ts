@@ -7,6 +7,7 @@ import type {
   Rating,
   Report,
   User,
+  UserLog,
   WalletTransaction,
 } from "@/api/types";
 
@@ -267,6 +268,19 @@ export const mockRatings: Rating[] = [
 export const mockReports: Report[] = [
   { id: "rp1", reportedUser: { id: "u3", name: "محمود حسن" }, reportedBy: { id: "u2", name: "سارة عبدالله" }, reason: "لم يحضر للعمل في الموعد", status: "open", jobId: "j3", createdAt: "2026-06-05" },
   { id: "rp2", reportedUser: { id: "u5", name: "مطعم البيت السوري" }, reportedBy: { id: "u1", name: "أحمد المصري" }, reason: "خلاف على عدد ساعات العمل الفعلية", status: "reviewed", jobId: "j4", createdAt: "2026-06-02" },
+];
+
+export const mockUserLogs: UserLog[] = [
+  { id: "l1", userId: "u1", action: "login", targetType: "session", targetId: "s1", createdAt: "2026-06-06T08:30:00" },
+  { id: "l2", userId: "u1", action: "job.apply", targetType: "job", targetId: "j4", createdAt: "2026-06-05T12:15:00" },
+  { id: "l3", userId: "u2", action: "job.create", targetType: "job", targetId: "j1", createdAt: "2026-06-04T16:42:00" },
+  { id: "l4", userId: "u2", action: "application.accept", targetType: "application", targetId: "a3", createdAt: "2026-06-04T17:10:00" },
+  { id: "l5", userId: "u5", action: "wallet.deposit", targetType: "wallet", targetId: "t5", createdAt: "2026-05-28T10:00:00" },
+  { id: "l6", userId: "u1", action: "job.checkin", targetType: "job", targetId: "j4", createdAt: "2026-06-05T17:02:00" },
+  { id: "l7", userId: "u1", action: "job.checkout", targetType: "job", targetId: "j4", createdAt: "2026-06-05T23:08:00" },
+  { id: "l8", userId: "u3", action: "login", targetType: "session", targetId: "s2", createdAt: "2026-06-06T09:11:00" },
+  { id: "l9", userId: "u4", action: "rating.create", targetType: "rating", targetId: "r1", createdAt: "2026-05-20T15:22:00" },
+  { id: "l10", userId: "u2", action: "report.create", targetType: "report", targetId: "rp1", createdAt: "2026-06-05T19:33:00" },
 ];
 
 export const mockStats: AdminStats = {

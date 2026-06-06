@@ -12,15 +12,27 @@ import Register from "./pages/auth/Register";
 import JobsFeed from "./pages/jobs/JobsFeed";
 import JobDetails from "./pages/jobs/JobDetails";
 import PostJob from "./pages/jobs/PostJob";
+import EditJob from "./pages/jobs/EditJob";
 import MyJobs from "./pages/jobs/MyJobs";
 import Applicants from "./pages/jobs/Applicants";
 import ActiveJob from "./pages/jobs/ActiveJob";
+import JobAssignments from "./pages/jobs/JobAssignments";
 import Wallet from "./pages/wallet/Wallet";
 import Chat from "./pages/chat/Chat";
 import Profile from "./pages/profile/Profile";
+import NotificationsPage from "./pages/notifications/NotificationsPage";
+import Settings from "./pages/settings/Settings";
+import Verification from "./pages/settings/Verification";
+import Help from "./pages/help/Help";
+import Terms from "./pages/help/Terms";
+import Privacy from "./pages/help/Privacy";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminReports from "./pages/admin/AdminReports";
+import AdminJobs from "./pages/admin/AdminJobs";
+import AdminWallet from "./pages/admin/AdminWallet";
+import AdminChatMonitor from "./pages/admin/AdminChatMonitor";
+import AdminUserLogs from "./pages/admin/AdminUserLogs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -38,21 +50,35 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
 
             <Route path="/jobs" element={<JobsFeed />} />
             <Route path="/jobs/new" element={<ProtectedRoute roles={["employer"]}><PostJob /></ProtectedRoute>} />
             <Route path="/jobs/:id" element={<JobDetails />} />
+            <Route path="/jobs/:id/edit" element={<ProtectedRoute roles={["employer"]}><EditJob /></ProtectedRoute>} />
             <Route path="/jobs/:id/applicants" element={<ProtectedRoute roles={["employer"]}><Applicants /></ProtectedRoute>} />
             <Route path="/jobs/:id/active" element={<ProtectedRoute><ActiveJob /></ProtectedRoute>} />
+            <Route path="/jobs/:id/assignments" element={<ProtectedRoute roles={["employer"]}><JobAssignments /></ProtectedRoute>} />
             <Route path="/my-jobs" element={<ProtectedRoute roles={["employer"]}><MyJobs /></ProtectedRoute>} />
 
             <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/settings/verification" element={<ProtectedRoute><Verification /></ProtectedRoute>} />
 
             <Route path="/admin" element={<ProtectedRoute roles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/users" element={<ProtectedRoute roles={["admin"]}><AdminUsers /></ProtectedRoute>} />
             <Route path="/admin/reports" element={<ProtectedRoute roles={["admin"]}><AdminReports /></ProtectedRoute>} />
+            <Route path="/admin/jobs" element={<ProtectedRoute roles={["admin"]}><AdminJobs /></ProtectedRoute>} />
+            <Route path="/admin/wallet" element={<ProtectedRoute roles={["admin"]}><AdminWallet /></ProtectedRoute>} />
+            <Route path="/admin/chat-monitor" element={<ProtectedRoute roles={["admin"]}><AdminChatMonitor /></ProtectedRoute>} />
+            <Route path="/admin/user-logs" element={<ProtectedRoute roles={["admin"]}><AdminUserLogs /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

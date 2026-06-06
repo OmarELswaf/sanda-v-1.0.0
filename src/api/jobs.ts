@@ -63,6 +63,40 @@ export const jobsApi = {
     return data;
   },
 
+  async update(id: string, payload: Partial<Job>): Promise<Job> {
+    if (USE_MOCKS) {
+      const existing = mockJobs.find((j) => j.id === id);
+      if (!existing) {
+        throw new Error("Job not found");
+      }
+      const updated: Job = {
+        ...existing,
+        ...payload,
+        // Preserve server-managed fields
+        id: existing.id,
+        employerId: existing.employerId,
+        employer: existing.employer,
+        status: existing.status === "open" ? "open" : existing.status,
+        applicantsCount: existing.applicantsCount,
+        createdAt: existing.createdAt,
+      };
+      Object.assign(existing, updated);
+      return delay(updated);
+    }
+    const { data } = await api.patch<Job>(`/jobs/${id}`, payload);
+    return data;
+  },
+
+  async remove(id: string): Promise<{ ok: true }> {
+    if (USE_MOCKS) {
+      const idx = mockJobs.findIndex((j) => j.id === id);
+      if (idx > -1) mockJobs.splice(idx, 1);
+      return delay({ ok: true });
+    }
+    const { data } = await api.delete<{ ok: true }>(`/jobs/${id}`);
+    return data;
+  },
+
   async apply(jobId: string, message: string): Promise<Application> {
     if (USE_MOCKS) {
       return delay({

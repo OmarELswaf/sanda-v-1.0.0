@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { QrCode, Camera, CheckCircle2, Clock } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
@@ -5,15 +6,26 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useJob } from "@/hooks/useJobs";
 import { useAuth } from "@/context/AuthContext";
+import QRScanner from "@/components/QRScanner";
 
 export default function ActiveJob() {
   const { id } = useParams<{ id: string }>();
   const { data: job } = useJob(id!);
   const { user } = useAuth();
+  
+  // حالة للتحكم في ظهور الكاميرا للعامل
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
-  if (!job) return <MainLayout><div className="container py-20 text-center">جاري التحميل...</div></MainLayout>;
+  if (!job) {
+    return (
+      <MainLayout>
+        <div className="container py-20 text-center">جاري التحميل...</div>
+      </MainLayout>
+    );
+  }
 
   const isEmployer = user?.role === "employer";
+  const isWorker = user?.role === "worker";
 
   return (
     <MainLayout>
@@ -36,21 +48,34 @@ export default function ActiveJob() {
             </>
           ) : (
             <>
-              <div className="mx-auto w-32 h-32 rounded-full bg-primary-soft flex items-center justify-center mb-6">
-                <Camera className="h-16 w-16 text-primary" />
-              </div>
-              <h2 className="font-heading font-bold text-xl mb-2">مسح كود الحضور</h2>
-              <p className="text-muted-foreground text-sm mb-6">اضغط الزر لفتح الكاميرا ومسح الـ QR من صاحب العمل.</p>
-              <Button variant="accent" size="lg">
-                <Camera className="h-5 w-5" /> فتح الكاميرا
-              </Button>
+              {isScannerOpen ? (
+                <div className="space-y-4">
+                  <QRScanner jobId={job.id} />
+                  <Button variant="ghost" onClick={() => setIsScannerOpen(false)}>
+                    إلغاء
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="mx-auto w-32 h-32 rounded-full bg-primary-soft flex items-center justify-center mb-6">
+                    <Camera className="h-16 w-16 text-primary" />
+                  </div>
+                  <h2 className="font-heading font-bold text-xl mb-2">مسح كود الحضور</h2>
+                  <p className="text-muted-foreground text-sm mb-6">اضغط الزر لفتح الكاميرا ومسح الـ QR من صاحب العمل.</p>
+                  <Button variant="accent" size="lg" onClick={() => setIsScannerOpen(true)}>
+                    <Camera className="h-5 w-5 ml-2" /> فتح الكاميرا
+                  </Button>
+                </>
+              )}
             </>
           )}
         </div>
 
+        {/* سجل الحضور */}
         <div className="mt-6 bg-card border border-border rounded-xl p-5">
           <h3 className="font-heading font-bold mb-3">سجل الحضور</h3>
           <div className="space-y-3">
+            {/* يفضل مستقبلاً جلب البيانات ديناميكياً من السجل الفعلي للوظيفة */}
             <Row icon={CheckCircle2} color="success" title="Check-in" time="٠٩:٠٠ ص" done />
             <Row icon={Clock} color="muted" title="Check-out" time="بانتظار..." />
           </div>
@@ -66,8 +91,12 @@ export default function ActiveJob() {
   );
 }
 
+// تعديل المكون Row لاستخدام خاصية color عند الحاجة
 function Row({ icon: Icon, title, time, done, color }: { icon: any; title: string; time: string; done?: boolean; color: string }) {
-  const c = done ? "bg-success/10 text-success" : "bg-muted text-muted-foreground";
+  const c = done 
+    ? (color === "success" ? "bg-success/10 text-success" : `bg-${color}/10 text-${color}`)
+    : "bg-muted text-muted-foreground";
+    
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">

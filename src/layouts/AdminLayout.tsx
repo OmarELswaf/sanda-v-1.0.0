@@ -1,13 +1,16 @@
 import { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Flag, Briefcase } from "lucide-react";
+import { LayoutDashboard, Users, Flag, Briefcase, Wallet, MessageCircle, Activity } from "lucide-react";
 import Header from "@/components/Header";
 
 const adminLinks = [
   { to: "/admin", label: "نظرة عامة", icon: LayoutDashboard, end: true },
   { to: "/admin/users", label: "المستخدمين", icon: Users },
   { to: "/admin/reports", label: "البلاغات", icon: Flag },
-  { to: "/jobs", label: "كل الوظائف", icon: Briefcase },
+  { to: "/admin/jobs", label: "الوظائف", icon: Briefcase },
+  { to: "/admin/wallet", label: "المحفظة", icon: Wallet },
+  { to: "/admin/chat-monitor", label: "مراقبة الدردشة", icon: MessageCircle },
+  { to: "/admin/user-logs", label: "سجل النشاط", icon: Activity },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

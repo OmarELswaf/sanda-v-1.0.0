@@ -24,6 +24,26 @@ export const useCreateJob = () => {
   });
 };
 
+export const useUpdateJob = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Parameters<typeof jobsApi.update>[1] }) =>
+      jobsApi.update(id, payload),
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+      qc.invalidateQueries({ queryKey: ["jobs", vars.id] });
+    },
+  });
+};
+
+export const useDeleteJob = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => jobsApi.remove(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["jobs"] }),
+  });
+};
+
 export const useApplyToJob = () => {
   const qc = useQueryClient();
   return useMutation({
