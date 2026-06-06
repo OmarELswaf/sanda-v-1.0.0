@@ -47,6 +47,15 @@ export interface User {
 
 export type JobStatus = "open" | "in-progress" | "completed" | "cancelled";
 
+export type LocationMethod = "manual" | "map" | "gps";
+
+export interface Location {
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  method: LocationMethod;
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -54,6 +63,9 @@ export interface Job {
   category: string;       // Not in ERD but needed in frontend
   city: string;            // Not in ERD but needed in frontend (from location)
   address: string;        // maps to ERD location
+  latitude?: number;       // Geographic coordinate
+  longitude?: number;      // Geographic coordinate
+  method?: LocationMethod;
   price: number;           // maps to ERD salary
   hours: number;           // maps to ERD duration
   startDate: string;       // maps to ERD start_date
@@ -268,6 +280,9 @@ export interface CreateJobPayload {
   category: string;
   city: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
+  method?: LocationMethod;
   price: number;
   hours: number;
   startDate: string;

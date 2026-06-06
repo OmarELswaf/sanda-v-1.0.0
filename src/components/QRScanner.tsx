@@ -16,7 +16,6 @@ export default function QRScanner({ jobId }: QRScannerProps) {
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState<"success" | "error" | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   const checkIn = useCheckIn();
@@ -33,7 +32,6 @@ export default function QRScanner({ jobId }: QRScannerProps) {
         videoRef.current.play();
       }
       setScanning(true);
-      startScanningLoop();
     } catch (err) {
         toast({
           title: "خطأ في الكاميرا",
@@ -50,18 +48,6 @@ export default function QRScanner({ jobId }: QRScannerProps) {
       streamRef.current = null;
     }
     setScanning(false);
-  };
-
-  // Scanning loop (simulated for now — real implementation needs html5-qrcode library)
-  const startScanningLoop = () => {
-    const interval = setInterval(() => {
-      if (!scanning) {
-        clearInterval(interval);
-        return;
-      }
-      // In real implementation, use html5-qrcode to scan
-      // For now, we'll simulate with a manual input
-    }, 1000);
   };
 
   // Handle manual QR input (fallback)
@@ -155,7 +141,6 @@ export default function QRScanner({ jobId }: QRScannerProps) {
               <p className="text-sm">اضغط لبدء المسح</p>
             </div>
           )}
-          <canvas ref={canvasRef} className="hidden" />
         </div>
 
         {/* Actions */}

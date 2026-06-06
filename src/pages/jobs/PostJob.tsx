@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Briefcase } from "lucide-react";
@@ -7,11 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import LocationPicker from "@/components/LocationPicker";
 import { useCreateJob } from "@/hooks/useJobs";
 import { toast } from "@/hooks/use-toast";
+import type { Location } from "@/api/types";
 
 interface FormValues {
-  title: string; description: string; category: string; city: string; address: string;
+  title: string; description: string; category: string; city: string;
   price: number; hours: number; startDate: string;
 }
 
@@ -21,10 +24,22 @@ const cities = ["القاهرة", "الجيزة", "الإسكندرية", "ال�
 export default function PostJob() {
   const navigate = useNavigate();
   const create = useCreateJob();
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>();
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormValues>();
+
+  const [location, setLocation] = useState<Location>({ address: "", method: "manual" });
 
   const onSubmit = async (values: FormValues) => {
-    const job = await create.mutateAsync(values);
+    if (!location.address) {
+      toast({ title: "العنوان التفصيلي مطلوب", variant: "destructive" });
+      return;
+    }
+    const job = await create.mutateAsync({
+      ...values,
+      address: location.address,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      method: location.method,
+    });
     toast({ title: "تم نشر الوظيفة بنجاح", description: "هتبدأ تستقبل تقديمات قريباً." });
     navigate(`/jobs/${job.id}`);
   };
@@ -74,9 +89,12 @@ export default function PostJob() {
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="address">العنوان التفصيلي *</Label>
-            <Input id="address" placeholder="الحي، الشارع، علامة مميزة" {...register("address", { required: "العنوان مطلوب" })} />
+          <div className="bg-card border border-border rounded-xl p-4">
+            <LocationPicker
+              value={location}
+              onChange={setLocation}
+              addressError={!location.address ? "العنوان التفصيلي مطلوب" : undefined}
+            />
           </div>
 
           <div>

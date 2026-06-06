@@ -91,11 +91,16 @@ export default function ActiveJob() {
   );
 }
 
-// تعديل المكون Row لاستخدام خاصية color عند الحاجة
+const colorMap: Record<string, string> = {
+  success: "bg-success/10 text-success",
+  muted: "bg-muted text-muted-foreground",
+  warning: "bg-warning/10 text-warning",
+  destructive: "bg-destructive/10 text-destructive",
+  primary: "bg-primary/10 text-primary",
+};
+
 function Row({ icon: Icon, title, time, done, color }: { icon: any; title: string; time: string; done?: boolean; color: string }) {
-  const c = done 
-    ? (color === "success" ? "bg-success/10 text-success" : `bg-${color}/10 text-${color}`)
-    : "bg-muted text-muted-foreground";
+  const c = done ? (colorMap[color] ?? colorMap.primary) : "bg-muted text-muted-foreground";
     
   return (
     <div className="flex items-center justify-between">

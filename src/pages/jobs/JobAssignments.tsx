@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Calendar, Clock, CheckCircle, XCircle, AlertTriangle, User, ArrowLeft } from "lucide-react";
-import { useJob, useMyJobs } from "@/hooks/useJobs";
+import { useJob } from "@/hooks/useJobs";
 import {
   useJobAssignments,
   useCheckOut,
@@ -9,7 +9,7 @@ import {
 } from "@/hooks/useJobAssignments";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";

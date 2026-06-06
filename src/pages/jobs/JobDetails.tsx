@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { MapPin, Clock, Calendar, Users, Star, ShieldCheck, MessageCircle, ArrowLeft } from "lucide-react";
+import MapView from "@/components/MapView";
 import MainLayout from "@/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import { useJob, useApplyToJob } from "@/hooks/useJobs";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { GeoCoordinates } from "@/lib/geolocation";
 
 export default function JobDetails() {
   const { id } = useParams<{ id: string }>();
@@ -66,15 +68,30 @@ export default function JobDetails() {
               <p className="text-foreground/80 leading-relaxed whitespace-pre-line">{job.description}</p>
             </div>
 
-            {/* Map placeholder */}
+            {/* Map */}
             <div className="bg-card border border-border rounded-xl p-6">
               <h2 className="font-heading font-bold text-lg mb-3">الموقع</h2>
-              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <MapPin className="h-10 w-10 mx-auto mb-2 text-primary" />
-                  <div>{job.address}</div>
+              {job.latitude && job.longitude ? (
+                <MapView
+                  markers={[{
+                    id: job.id,
+                    lat: job.latitude,
+                    lng: job.longitude,
+                    title: job.address,
+                    subtitle: job.city,
+                  }]}
+                  center={{ lat: job.latitude, lng: job.longitude, timestamp: 0 } as GeoCoordinates}
+                  zoom={15}
+                  height={280}
+                />
+              ) : (
+                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <MapPin className="h-10 w-10 mx-auto mb-2 text-primary" />
+                    <div>{job.address}</div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 

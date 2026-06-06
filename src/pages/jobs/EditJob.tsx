@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Briefcase, ArrowRight, Loader2 } from "lucide-react";
@@ -8,18 +8,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import LocationPicker from "@/components/LocationPicker";
 import MainLayout from "@/layouts/MainLayout";
 import { useJob, useUpdateJob, useDeleteJob } from "@/hooks/useJobs";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import type { Location } from "@/api/types";
 
 interface FormValues {
   title: string;
   description: string;
   category: string;
   city: string;
-  address: string;
   price: number;
   hours: number;
   startDate: string;
@@ -39,6 +40,8 @@ export default function EditJob() {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors, isDirty } } = useForm<FormValues>();
 
+  const [location, setLocation] = useState<Location>({ address: "", method: "manual" });
+
   // Hydrate form once job is loaded
   useEffect(() => {
     if (job) {
@@ -47,11 +50,16 @@ export default function EditJob() {
         description: job.description,
         category: job.category,
         city: job.city,
-        address: job.address,
         price: job.price,
         hours: job.hours,
         startDate: job.startDate?.slice(0, 16) ?? "",
         status: job.status,
+      });
+      setLocation({
+        address: job.address,
+        latitude: job.latitude,
+        longitude: job.longitude,
+        method: job.method ?? "manual",
       });
     }
   }, [job, reset]);
@@ -72,8 +80,21 @@ export default function EditJob() {
   }
 
   const onSubmit = async (values: FormValues) => {
+    if (!location.address) {
+      toast({ title: "العنوان التفصيلي مطلوب", variant: "destructive" });
+      return;
+    }
     try {
-      await updateJob.mutateAsync({ id, payload: values });
+      await updateJob.mutateAsync({
+        id,
+        payload: {
+          ...values,
+          address: location.address,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          method: location.method,
+        },
+      });
       toast({ title: "تم حفظ التعديلات" });
       navigate(`/jobs/${id}`);
     } catch {
@@ -170,9 +191,12 @@ export default function EditJob() {
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="address">العنوان التفصيلي *</Label>
-            <Input id="address" {...register("address", { required: "العنوان مطلوب" })} />
+          <div className="bg-card border border-border rounded-xl p-4">
+            <LocationPicker
+              value={location}
+              onChange={setLocation}
+              addressError={!location.address ? "العنوان التفصيلي مطلوب" : undefined}
+            />
           </div>
 
           <div>

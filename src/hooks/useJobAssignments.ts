@@ -25,12 +25,10 @@ export const useAssignment = (id: string) =>
   });
 
 /** Generate QR code for a job */
-export const useGenerateQR = () => {
-  const qc = useQueryClient();
-  return useMutation({
+export const useGenerateQR = () =>
+  useMutation({
     mutationFn: ({ jobId }: { jobId: string }) => jobAssignmentsApi.generateQR(jobId),
   });
-};
 
 /** Check-in by scanning QR */
 export const useCheckIn = () => {

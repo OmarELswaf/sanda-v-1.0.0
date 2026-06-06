@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Bell, Check, Trash2, MessageSquare, Briefcase, Wallet, AlertTriangle, Info, Filter } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Bell, Check, Trash2, MessageSquare, Briefcase, Wallet, AlertTriangle, Info } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import {
   useNotifications,
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
-const typeConfig: Record<string, { icon: React.ReactNode; label: string; color: string }> = {
+const typeConfig: Record<string, { icon: ReactNode; label: string; color: string }> = {
   job: { icon: <Briefcase className="w-4 h-4" />, label: "وظائف", color: "bg-blue-100 text-blue-700" },
   application: { icon: <Briefcase className="w-4 h-4" />, label: "تقديمات", color: "bg-green-100 text-green-700" },
   message: { icon: <MessageSquare className="w-4 h-4" />, label: "رسائل", color: "bg-purple-100 text-purple-700" },
