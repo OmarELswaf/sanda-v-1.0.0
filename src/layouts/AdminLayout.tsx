@@ -1,0 +1,41 @@
+import { ReactNode } from "react";
+import { NavLink } from "react-router-dom";
+import { LayoutDashboard, Users, Flag, Briefcase } from "lucide-react";
+import Header from "@/components/Header";
+
+const adminLinks = [
+  { to: "/admin", label: "نظرة عامة", icon: LayoutDashboard, end: true },
+  { to: "/admin/users", label: "المستخدمين", icon: Users },
+  { to: "/admin/reports", label: "البلاغات", icon: Flag },
+  { to: "/jobs", label: "كل الوظائف", icon: Briefcase },
+];
+
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col bg-muted/30">
+      <Header />
+      <div className="flex-1 container mx-auto px-4 md:px-6 py-8 grid lg:grid-cols-[240px_1fr] gap-8">
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <nav className="bg-card border border-border rounded-xl p-2 space-y-1">
+            {adminLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.end}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? "bg-primary text-primary-foreground" : "text-foreground/70 hover:bg-muted"
+                  }`
+                }
+              >
+                <link.icon className="h-4 w-4" />
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+        </aside>
+        <div>{children}</div>
+      </div>
+    </div>
+  );
+}
