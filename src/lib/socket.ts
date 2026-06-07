@@ -1,6 +1,7 @@
 import { USE_MOCKS } from "@/api/client";
 
-type SocketCallback = (data: any) => void;
+type SocketPayload = Record<string, unknown>;
+type SocketCallback = (data: SocketPayload) => void;
 
 class MockSocket {
   private listeners: Record<string, SocketCallback[]> = {};
@@ -20,7 +21,7 @@ class MockSocket {
     return this;
   }
 
-  emit(event: string, data: any) {
+  emit(event: string, data: SocketPayload) {
     // Simulate server side actions in mock mode
     if (event === "join_room") {
       console.log(`[MockSocket] Joined room: ${data}`);
@@ -56,7 +57,7 @@ class MockSocket {
   }
 
   // Helper method to trigger events internally
-  public trigger(event: string, data: any) {
+  public trigger(event: string, data: SocketPayload) {
     if (this.listeners[event]) {
       this.listeners[event].forEach((cb) => cb(data));
     }

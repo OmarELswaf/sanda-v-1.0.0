@@ -1,13 +1,17 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { Briefcase, ShieldCheck, Wallet, Star } from "lucide-react";
+import { Briefcase, ShieldCheck, Wallet, Star, type LucideIcon } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AuthLayout({ children, title, subtitle }: { children: ReactNode; title: string; subtitle?: string }) {
+  const { user } = useAuth();
+  const logoHref = user ? "/jobs" : "/";
+
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Form side */}
       <div className="flex flex-col px-6 py-10 lg:px-16">
-        <Link to="/" className="flex items-center gap-2 font-heading font-extrabold text-xl text-foreground mb-12">
+        <Link to={logoHref} className="flex items-center gap-2 font-heading font-extrabold text-xl text-foreground mb-12">
           <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
             <Briefcase className="h-5 w-5 text-primary-foreground" />
           </div>
@@ -45,7 +49,7 @@ export default function AuthLayout({ children, title, subtitle }: { children: Re
   );
 }
 
-function Feature({ icon: Icon, title, desc }: { icon: any; title: string; desc: string }) {
+function Feature({ icon: Icon, title, desc }: { icon: LucideIcon; title: string; desc: string }) {
   return (
     <div className="flex items-start gap-3">
       <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center shrink-0">

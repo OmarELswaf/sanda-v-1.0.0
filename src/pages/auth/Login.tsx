@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import type { UserRole } from "@/api/types";
 
 interface FormValues { phone: string; password: string }
+interface LocationState { from?: { pathname?: string } }
 
 export default function Login() {
   const [role, setRole] = useState<UserRole>("worker");
@@ -23,7 +24,7 @@ export default function Login() {
     try {
       const u = await login({ ...values, role });
       toast({ title: "أهلاً بعودتك!", description: u.name });
-      const from = (location.state as any)?.from?.pathname || "/jobs";
+      const from = (location.state as LocationState | null)?.from?.pathname || "/jobs";
       navigate(from, { replace: true });
     } catch {
       toast({ title: "فشل تسجيل الدخول", description: "تحقق من البيانات", variant: "destructive" });

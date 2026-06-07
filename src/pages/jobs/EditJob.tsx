@@ -14,7 +14,7 @@ import { useJob, useUpdateJob, useDeleteJob } from "@/hooks/useJobs";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import type { Location } from "@/api/types";
+import type { JobStatus, Location } from "@/api/types";
 
 interface FormValues {
   title: string;
@@ -24,7 +24,7 @@ interface FormValues {
   price: number;
   hours: number;
   startDate: string;
-  status: string;
+  status: JobStatus;
 }
 
 const categories = ["ضيافة وفعاليات", "تنظيف", "صيانة وتركيبات", "مطاعم", "تسويق ميداني", "تصوير", "توصيل"];
@@ -222,7 +222,7 @@ export default function EditJob() {
           {canEditStatus && (
             <div>
               <Label>الحالة</Label>
-              <Select value={watch("status")} onValueChange={(v) => setValue("status", v, { shouldDirty: true })}>
+              <Select value={watch("status")} onValueChange={(v) => setValue("status", v as JobStatus, { shouldDirty: true })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="open">مفتوحة للتقديم</SelectItem>

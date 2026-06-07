@@ -35,14 +35,14 @@ export interface User {
   avatar?: string;        // maps to ERD profile_image
   walletBalance: number;  // maps to ERD Wallets.balance (denormalized)
   isVerified: boolean;
-  isActive: boolean;      // maps to ERD is_active
+  isActive?: boolean;     // maps to ERD is_active
   rating?: number;
   ratingsCount?: number;
   skills?: string[];
   bio?: string;
   city?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export type JobStatus = "open" | "in-progress" | "completed" | "cancelled";
@@ -70,7 +70,7 @@ export interface Job {
   hours: number;           // maps to ERD duration
   startDate: string;       // maps to ERD start_date
   endDate?: string;        // maps to ERD end_date
-  requiredWorkers: number; // maps to ERD required_workers
+  requiredWorkers?: number; // maps to ERD required_workers
   status: JobStatus;
   employerId: string;      // maps to ERD user_id
   employer: UserSummary;
@@ -79,7 +79,7 @@ export interface Job {
   applicantsCount: number;
   qrCode?: string;         // maps to ERD qr_code
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export type ApplicationStatus = "pending" | "accepted" | "rejected";
@@ -88,12 +88,12 @@ export interface Application {
   id: string;
   jobId: string;
   job?: JobSummary;
-  workerId: string;
+  workerId?: string;
   worker: UserSummary;
   message: string;         // Not in ERD but needed
   status: ApplicationStatus;
   createdAt: string;       // maps to ERD applied_at
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 // ============================================================================
@@ -128,13 +128,13 @@ export type PaymentStatus = "pending" | "completed" | "failed";
 
 export interface WalletTransaction {
   id: string;
-  walletId: string;       // maps to ERD wallet_id (WAS MISSING!)
+  walletId?: string;      // maps to ERD wallet_id
   jobId?: string;
   jobTitle?: string;       // Denormalized for display
   amount: number;
   transactionType: TransactionType;
   paymentStatus: PaymentStatus;
-  createdAt: string;
+  createdAt?: string;
 }
 
 // ============================================================================
@@ -149,7 +149,7 @@ export interface Conversation {
   lastMessage: string;     // Denormalized
   lastMessageAt: string;   // Denormalized
   unread: number;          // Denormalized
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface ConversationParticipant {

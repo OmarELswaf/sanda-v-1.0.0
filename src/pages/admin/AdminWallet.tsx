@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Wallet, TrendingUp, TrendingDown, Search, Download, Filter, ArrowDownToLine, ArrowUpFromLine, Clock, CheckCircle2 } from "lucide-react";
+import { Wallet, TrendingUp, TrendingDown, Search, Download, Filter, ArrowDownToLine, ArrowUpFromLine, Clock, CheckCircle2, type LucideIcon } from "lucide-react";
 import AdminLayout from "@/layouts/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -203,7 +203,7 @@ export default function AdminWallet() {
   );
 }
 
-function KpiCard({ icon: Icon, label, value, cls }: { icon: any; label: string; value: string; cls: string }) {
+function KpiCard({ icon: Icon, label, value, cls }: { icon: LucideIcon; label: string; value: string; cls: string }) {
   return (
     <Card>
       <CardContent className="p-5 flex items-center gap-4">

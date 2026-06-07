@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { QrCode, Camera, CheckCircle2, Clock } from "lucide-react";
+import { QrCode, Camera, CheckCircle2, Clock, type LucideIcon } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -99,7 +99,7 @@ const colorMap: Record<string, string> = {
   primary: "bg-primary/10 text-primary",
 };
 
-function Row({ icon: Icon, title, time, done, color }: { icon: any; title: string; time: string; done?: boolean; color: string }) {
+function Row({ icon: Icon, title, time, done, color }: { icon: LucideIcon; title: string; time: string; done?: boolean; color: string }) {
   const c = done ? (colorMap[color] ?? colorMap.primary) : "bg-muted text-muted-foreground";
     
   return (
