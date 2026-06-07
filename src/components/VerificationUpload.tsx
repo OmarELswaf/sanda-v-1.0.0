@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, FileText, CheckCircle2, ShieldCheck, Loader2 } from "lucide-react";
+import { Upload, CheckCircle2, ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
@@ -12,28 +12,26 @@ interface VerificationUploadProps {
 export default function VerificationUpload({ onSuccess }: VerificationUploadProps) {
   const [nationalIdFront, setNationalIdFront] = useState<File | null>(null);
   const [nationalIdBack, setNationalIdBack] = useState<File | null>(null);
-  const [criminalRecord, setCriminalRecord] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [step, setStep] = useState<"upload" | "pending">("upload");
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "front" | "back" | "criminal"
+    type: "front" | "back"
   ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (type === "front") setNationalIdFront(file);
       else if (type === "back") setNationalIdBack(file);
-      else if (type === "criminal") setCriminalRecord(file);
     }
   };
 
   const handleUploadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nationalIdFront || !nationalIdBack || !criminalRecord) {
+    if (!nationalIdFront || !nationalIdBack) {
       toast({
         title: "الملفات ناقصة",
-        description: "يرجى رفع صور بطاقة الرقم القومي (أمام وخلف) والفيش الجنائي الموجه للمنصة.",
+        description: "يرجى رفع صور بطاقة الرقم القومي (أمام وخلف).",
         variant: "destructive",
       });
       return;
@@ -64,7 +62,7 @@ export default function VerificationUpload({ onSuccess }: VerificationUploadProp
                 رفع مستندات التوثيق والأمان
               </h3>
               <p className="text-xs text-muted-foreground">
-                لكي تتمكن من العمل واستلام مبالغ الضمان، يجب تقديم وثائق إثبات الهوية الشخصية والفيش الجنائي.
+                لكي تتمكن من العمل واستلام مبالغ الضمان، يجب تقديم وثائق إثبات الهوية الشخصية.
               </p>
             </div>
 
@@ -104,24 +102,6 @@ export default function VerificationUpload({ onSuccess }: VerificationUploadProp
               </div>
             </div>
 
-            {/* Criminal Record */}
-            <div className="space-y-2">
-              <Label className="text-sm font-bold">الصحيفة الجنائية (فيش وتشبيه حديث)</Label>
-              <div className="border border-dashed rounded-xl p-4 flex flex-col items-center justify-center hover:bg-muted/30 cursor-pointer relative">
-                <input
-                  type="file"
-                  accept="image/*,application/pdf"
-                  onChange={(e) => handleFileChange(e, "criminal")}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-                <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                <span className="text-xs font-semibold">
-                  {criminalRecord ? criminalRecord.name : "اضغط لرفع المستند (الفيش الجنائي)"}
-                </span>
-                <span className="text-[10px] text-muted-foreground mt-1">PDF, PNG, JPG موجه لمنصة سندة</span>
-              </div>
-            </div>
-
             <Button type="submit" className="w-full py-5 font-bold" disabled={uploading}>
               {uploading ? (
                 <>
@@ -136,7 +116,7 @@ export default function VerificationUpload({ onSuccess }: VerificationUploadProp
         ) : (
           <div className="text-center py-6 space-y-4">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-              <FileText className="w-8 h-8 text-blue-600 animate-pulse" />
+              <ShieldCheck className="w-8 h-8 text-blue-600 animate-pulse" />
             </div>
             <div className="space-y-1">
               <h3 className="font-bold text-lg text-foreground">المستندات قيد المراجعة</h3>

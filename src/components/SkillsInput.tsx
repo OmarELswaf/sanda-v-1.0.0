@@ -106,7 +106,7 @@ export default function SkillsInput({
           <Badge
             key={index}
             variant="secondary"
-            className="px-2.5 py-1 text-xs gap-1 flex items-center bg-primary/5 hover:bg-primary/10 border border-primary/20 text-primary-foreground font-semibold"
+            className="px-2.5 py-1 text-xs gap-1 flex items-center bg-primary/5 hover:bg-primary/10 border border-primary/20 text-foreground font-semibold"
           >
             <span>{skill}</span>
             <button

@@ -1,23 +1,15 @@
 import { Bell, Check, Trash2, MessageSquare, Briefcase, Wallet, AlertTriangle, Info } from "lucide-react";
 import type { Notification } from "@/api/types";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
-const typeIcons: Record<string, React.ReactNode> = {
-  job: <Briefcase className="w-4 h-4 text-blue-500" />,
-  application: <Briefcase className="w-4 h-4 text-green-500" />,
-  message: <MessageSquare className="w-4 h-4 text-purple-500" />,
-  payment: <Wallet className="w-4 h-4 text-emerald-500" />,
-  sos: <AlertTriangle className="w-4 h-4 text-red-500" />,
-  system: <Info className="w-4 h-4 text-gray-500" />,
-};
-
-const typeBg: Record<string, string> = {
-  job: "bg-blue-50/50",
-  application: "bg-green-50/50",
-  message: "bg-purple-50/50",
-  payment: "bg-emerald-50/50",
-  sos: "bg-red-50/50",
-  system: "bg-gray-50/50",
+const typeConfig: Record<string, { icon: ReactNode; label: string; color: string }> = {
+  job: { icon: <Briefcase className="w-4 h-4" />, label: "وظائف", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
+  application: { icon: <Briefcase className="w-4 h-4" />, label: "تقديمات", color: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" },
+  message: { icon: <MessageSquare className="w-4 h-4" />, label: "رسائل", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300" },
+  payment: { icon: <Wallet className="w-4 h-4" />, label: "مدفوعات", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
+  sos: { icon: <AlertTriangle className="w-4 h-4" />, label: "طوارئ", color: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" },
+  system: { icon: <Info className="w-4 h-4" />, label: "نظام", color: "bg-gray-100 text-gray-700 dark:bg-gray-800/40 dark:text-gray-300" },
 };
 
 interface NotificationDropdownProps {
@@ -75,18 +67,21 @@ export default function NotificationDropdown({
             جاري التحميل...
           </div>
         ) : notifications && notifications.length > 0 ? (
-          notifications.map((notif) => (
+          notifications.map((notif) => {
+            const config = typeConfig[notif.type] || typeConfig.system;
+            return (
             <div
               key={notif.id}
               onClick={() => handleNotificationClick(notif)}
               className={cn(
-                "flex items-start gap-3 p-3 cursor-pointer hover:bg-accent transition-colors border-b last:border-b-0 group",
-                !notif.isRead ? typeBg[notif.type] || "bg-blue-50/30" : "bg-white",
-                !notif.isRead && "border-r-2 border-r-primary"
+                "flex items-start gap-3 p-3 cursor-pointer hover:bg-accent/50 transition-colors border-b last:border-b-0 group",
+                !notif.isRead
+                  ? "bg-blue-50/70 dark:bg-blue-950/20"
+                  : "bg-popover"
               )}
             >
-              <div className="mt-0.5 shrink-0">
-                {typeIcons[notif.type] || typeIcons.system}
+              <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0", config.color)}>
+                {config.icon}
               </div>
               <div className="flex-1 min-w-0">
                 <p className={cn("text-sm font-semibold", !notif.isRead ? "text-foreground" : "text-foreground/80")}>
@@ -115,7 +110,8 @@ export default function NotificationDropdown({
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
-          ))
+          );
+        })
         ) : (
           <div className="p-8 text-center text-muted-foreground">
             <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />

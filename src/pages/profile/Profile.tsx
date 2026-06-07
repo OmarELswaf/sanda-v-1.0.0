@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { MapPin, ShieldCheck, Calendar, Star, Briefcase } from "lucide-react";
+import { MapPin, ShieldCheck, Calendar, Star, Briefcase, Pencil } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -7,11 +8,47 @@ import { Button } from "@/components/ui/button";
 import StarRating from "@/components/StarRating";
 import { mockUsers } from "@/lib/mock/data";
 import { useRatings } from "@/hooks/useJobs";
+import { useAuth } from "@/context/AuthContext";
+import EditProfileModal from "@/components/EditProfileModal";
+import { toast } from "@/hooks/use-toast";
+import type { User } from "@/api/types";
 
 export default function Profile() {
   const { id } = useParams<{ id: string }>();
-  const user = mockUsers.find((u) => u.id === id) ?? mockUsers[0];
-  const { data: ratings } = useRatings(user.id);
+  const { user: authUser } = useAuth();
+  const [profileUser, setProfileUser] = useState<User>(() => {
+    if (!id && authUser) return authUser;
+    if (authUser && authUser.id === id) {
+      const stored = localStorage.getItem("sanda_user");
+      return stored ? JSON.parse(stored) : authUser;
+    }
+    return mockUsers.find((u) => u.id === id) ?? mockUsers[0];
+  });
+  const { data: ratings } = useRatings(profileUser.id);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!id && authUser) {
+      setProfileUser(authUser);
+    } else if (authUser && authUser.id === id) {
+      const stored = localStorage.getItem("sanda_user");
+      setProfileUser(stored ? JSON.parse(stored) : authUser);
+    } else {
+      setProfileUser(mockUsers.find((u) => u.id === id) ?? mockUsers[0]);
+    }
+  }, [id, authUser]);
+
+  const isOwnProfile = authUser !== null && authUser.id === profileUser.id;
+
+  const handleProfileUpdate = (updated: Partial<User>) => {
+    const merged = { ...profileUser, ...updated };
+    localStorage.setItem("sanda_user", JSON.stringify(merged));
+    setProfileUser(merged);
+    toast({
+      title: "تم الحفظ",
+      description: "تم تحديث بيانات ملفك الشخصي بنجاح.",
+    });
+  };
 
   return (
     <MainLayout>
@@ -20,43 +57,50 @@ export default function Profile() {
         <div className="bg-card border border-border rounded-2xl p-6 md:p-8 mb-6">
           <div className="flex flex-col md:flex-row gap-6 items-start">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={user.avatar} />
-              <AvatarFallback className="text-2xl">{user.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={profileUser.avatar} />
+              <AvatarFallback className="text-2xl">{profileUser.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <h1 className="font-heading font-extrabold text-2xl md:text-3xl">{user.name}</h1>
-                {user.isVerified && (
+                <h1 className="font-heading font-extrabold text-2xl md:text-3xl">{profileUser.name}</h1>
+                {profileUser.isVerified && (
                   <Badge className="bg-success/10 text-success border-success/20">
                     <ShieldCheck className="h-3 w-3 me-1" /> موثق
                   </Badge>
                 )}
               </div>
               <div className="text-muted-foreground mb-3">
-                {user.role === "worker" ? "عامل" : user.role === "employer" ? "صاحب عمل" : "مسؤول"}
+                {profileUser.role === "worker" ? "عامل" : profileUser.role === "employer" ? "صاحب عمل" : "مسؤول"}
               </div>
               <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                {user.city && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {user.city}</span>}
-                <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> عضو منذ {new Date(user.createdAt).toLocaleDateString("ar-EG", { year: "numeric", month: "long" })}</span>
-                {user.rating && (
+                {profileUser.city && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {profileUser.city}</span>}
+                <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> عضو منذ {new Date(profileUser.createdAt).toLocaleDateString("ar-EG", { year: "numeric", month: "long" })}</span>
+                {profileUser.rating && (
                   <span className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-accent text-accent" /> {user.rating.toFixed(1)} ({user.ratingsCount} تقييم)
+                    <Star className="h-4 w-4 fill-accent text-accent" /> {profileUser.rating.toFixed(1)} ({profileUser.ratingsCount} تقييم)
                   </span>
                 )}
               </div>
             </div>
-            <Button variant="outline">مراسلة</Button>
+            {isOwnProfile ? (
+              <Button onClick={() => setEditModalOpen(true)} className="gap-2">
+                <Pencil className="w-4 h-4" />
+                تعديل الملف الشخصي
+              </Button>
+            ) : (
+              <Button variant="outline">مراسلة</Button>
+            )}
           </div>
 
-          {user.bio && <p className="text-foreground/80 mt-6 pt-6 border-t border-border leading-relaxed">{user.bio}</p>}
+          {profileUser.bio && <p className="text-foreground/80 mt-6 pt-6 border-t border-border leading-relaxed">{profileUser.bio}</p>}
         </div>
 
         {/* Skills */}
-        {user.skills && user.skills.length > 0 && (
+        {profileUser.skills && profileUser.skills.length > 0 && (
           <div className="bg-card border border-border rounded-2xl p-6 mb-6">
             <h2 className="font-heading font-bold text-lg mb-4 flex items-center gap-2"><Briefcase className="h-5 w-5 text-primary" /> المهارات</h2>
             <div className="flex flex-wrap gap-2">
-              {user.skills.map((s) => <Badge key={s} variant="outline" className="px-3 py-1">{s}</Badge>)}
+              {profileUser.skills.map((s) => <Badge key={s} variant="outline" className="px-3 py-1">{s}</Badge>)}
             </div>
           </div>
         )}
@@ -65,7 +109,7 @@ export default function Profile() {
         <div className="grid grid-cols-3 gap-3 mb-6">
           <StatBox label="وظائف منفّذة" value="32" />
           <StatBox label="معدل الالتزام" value="98%" />
-          <StatBox label="التقييم" value={user.rating?.toFixed(1) ?? "—"} />
+          <StatBox label="التقييم" value={profileUser.rating?.toFixed(1) ?? "—"} />
         </div>
 
         {/* Ratings */}
@@ -91,6 +135,13 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      <EditProfileModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        user={profileUser}
+        onSave={handleProfileUpdate}
+      />
     </MainLayout>
   );
 }

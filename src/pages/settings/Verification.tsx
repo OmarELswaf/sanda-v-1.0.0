@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, ShieldCheck, CheckCircle2, AlertCircle, FileCheck, User } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import { ShieldCheck, CheckCircle2, FileCheck, User } from "lucide-react";
+import SettingsLayout from "@/layouts/SettingsLayout";
 import VerificationUpload from "@/components/VerificationUpload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,27 +14,22 @@ export default function Verification() {
 
   if (!user) {
     return (
-      <MainLayout>
+      <SettingsLayout>
         <div className="container mx-auto px-4 py-16 text-center">
           <Skeleton className="h-8 w-48 mx-auto" />
         </div>
-      </MainLayout>
+      </SettingsLayout>
     );
   }
 
   return (
-    <MainLayout>
-      <div className="container mx-auto px-4 py-8 max-w-3xl" dir="rtl">
-        <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowRight className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">توثيق الحساب</h1>
-            <p className="text-sm text-muted-foreground">
-              ارفع المستندات الرسمية باشان تحصل على شارة التوثيق.
-            </p>
-          </div>
+    <SettingsLayout>
+      <div className="w-full" dir="rtl">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold">توثيق الحساب</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            ارفع المستندات الرسمية باشان تحصل على شارة التوثيق.
+          </p>
         </div>
 
         {/* Status banner */}
@@ -46,7 +41,7 @@ export default function Verification() {
                   {user.isVerified ? (
                     <ShieldCheck className="w-6 h-6 text-success" />
                   ) : (
-                    <AlertCircle className="w-6 h-6 text-warning" />
+                    <ShieldCheck className="w-6 h-6 text-warning" />
                   )}
                 </div>
                 <div>
@@ -66,17 +61,11 @@ export default function Verification() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <Requirement
                 icon={<FileCheck className="w-4 h-4" />}
                 label="بطاقة الرقم القومي"
                 sub="(وجهين)"
-                done={user.isVerified}
-              />
-              <Requirement
-                icon={<FileCheck className="w-4 h-4" />}
-                label="الفيش الجنائي"
-                sub="حديث"
                 done={user.isVerified}
               />
               <Requirement
@@ -112,7 +101,7 @@ export default function Verification() {
           المستندات بتتشفر وتخزن بأمان. فريق سندة بيراجع الحسابات خلال ٢٤ ساعة.
         </p>
       </div>
-    </MainLayout>
+    </SettingsLayout>
   );
 }
 
