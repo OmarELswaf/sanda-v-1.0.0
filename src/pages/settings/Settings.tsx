@@ -52,9 +52,9 @@ export default function Settings() {
                 اللغة المفضلة (Language)
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center justify-between">
+            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0 sm:justify-between">
               <span className="text-xs font-semibold">لغة عرض التطبيق</span>
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full sm:w-auto">
                 <Button
                   size="sm"
                   variant={lang === "ar" ? "default" : "outline"}

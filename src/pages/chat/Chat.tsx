@@ -18,7 +18,10 @@ export default function Chat() {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { if (!activeId && convos?.[0]) setActiveId(convos[0].id); }, [convos, activeId]);
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  useEffect(() => {
+    const el = endRef.current?.parentElement;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages]);
 
   const handleSend = async () => {
     if (!text.trim() || !activeId) return;

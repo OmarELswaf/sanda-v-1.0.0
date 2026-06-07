@@ -10,6 +10,9 @@ import {
   LogOut,
   ChevronDown,
   Shield,
+  Settings as SettingsIcon,
+  HelpCircle,
+  Info,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import NotificationBell from "@/components/NotificationBell";
@@ -21,7 +24,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -68,7 +70,7 @@ export default function Header() {
         </nav>
 
         {/* Right Side */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           {/* Notifications — NEW */}
           {user && <NotificationBell />}
 
@@ -90,26 +92,43 @@ export default function Header() {
                   <p className="text-xs text-primary mt-1 capitalize">{user.role}</p>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate(`/profile/${user.id}`)}>
-                  <User className="w-4 h-4 mr-2" />
-                  الملف الشخصي
+                <DropdownMenuItem asChild>
+                  <Link to={`/profile/${user.id}`} className="flex items-center">
+                    <User className="w-4 h-4 mr-2" />
+                    الملف الشخصي
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/notifications")}>
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  الإشعارات
+                <DropdownMenuItem asChild>
+                  <Link to="/wallet" className="flex items-center">
+                    <Wallet className="w-4 h-4 mr-2" />
+                    المحفظة
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/wallet")}>
-                  <Wallet className="w-4 h-4 mr-2" />
-                  المحفظة
+                <DropdownMenuItem asChild>
+                  <Link to="/settings" className="flex items-center">
+                    <SettingsIcon className="w-4 h-4 mr-2" />
+                    الإعدادات
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/settings")}>
-                  <ChevronDown className="w-4 h-4 mr-2" />
-                  الإعدادات
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/help" className="flex items-center">
+                    <HelpCircle className="w-4 h-4 mr-2" />
+                    مركز المساعدة
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/about" className="flex items-center">
+                    <Info className="w-4 h-4 mr-2" />
+                    من نحن
+                  </Link>
                 </DropdownMenuItem>
                 {user.role === "admin" && (
-                  <DropdownMenuItem onClick={() => navigate("/admin")}>
-                    <Shield className="w-4 h-4 mr-2" />
-                    لوحة الإدارة
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin" className="flex items-center">
+                      <Shield className="w-4 h-4 mr-2" />
+                      لوحة الإدارة
+                    </Link>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
@@ -120,7 +139,7 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
                 تسجيل الدخول
               </Button>
@@ -132,10 +151,14 @@ export default function Header() {
 
           {/* Mobile Menu Toggle */}
           <Button
+            type="button"
             variant="ghost"
             size="icon"
-            className="md:hidden"
-            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden hover:bg-muted/50 hover:text-foreground shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMobileOpen(!mobileOpen);
+            }}
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
@@ -144,49 +167,134 @@ export default function Header() {
 
       {/* Mobile Nav */}
       {mobileOpen && (
-        <div className="md:hidden border-t bg-background">
-          <div className="container py-4 space-y-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
-              >
-                {link.icon}
-                {link.label}
-              </Link>
-            ))}
-            {user && (
-              <Link
-                to="/notifications"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
-              >
-                <MessageSquare className="w-4 h-4" />
-                الإشعارات
-              </Link>
-            )}
-            <div className="border-t pt-3">
-              {user ? (
+        <div className="md:hidden border-t bg-background max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="container py-4">
+            {user ? (
+              <>
+                {/* Account Section */}
+                <div className="px-3 mb-2 text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">
+                  الحساب
+                </div>
+                <div className="space-y-1">
+                  <Link
+                    to={`/profile/${user.id}`}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                  >
+                    <User className="w-4 h-4 text-muted-foreground shrink-0" />
+                    الملف الشخصي
+                  </Link>
+                  <Link
+                    to="/wallet"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                  >
+                    <Wallet className="w-4 h-4 text-muted-foreground shrink-0" />
+                    المحفظة
+                  </Link>
+                  <Link
+                    to="/settings"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                  >
+                    <SettingsIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                    الإعدادات
+                  </Link>
+                </div>
+
+                <div className="my-3 border-t" />
+
+                {/* Navigation Section */}
+                <div className="px-3 mb-2 text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">
+                  التصفح
+                </div>
+                <div className="space-y-1">
+                  <Link
+                    to="/jobs"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                  >
+                    <Briefcase className="w-4 h-4 text-muted-foreground shrink-0" />
+                    الوظائف
+                  </Link>
+                  <Link
+                    to="/chat"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4 text-muted-foreground shrink-0" />
+                    المحادثات
+                  </Link>
+                </div>
+
+                <div className="my-3 border-t" />
+
+                {/* Information Section */}
+                <div className="px-3 mb-2 text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">
+                  معلومات
+                </div>
+                <div className="space-y-1">
+                  <Link
+                    to="/help"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                  >
+                    <HelpCircle className="w-4 h-4 text-muted-foreground shrink-0" />
+                    مركز المساعدة
+                  </Link>
+                  <Link
+                    to="/about"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                  >
+                    <Info className="w-4 h-4 text-muted-foreground shrink-0" />
+                    من نحن
+                  </Link>
+                </div>
+
+                <div className="my-3 border-t" />
+
+                {/* Logout */}
                 <button
                   onClick={() => { handleLogout(); setMobileOpen(false); }}
-                  className="flex items-center gap-2 py-2 text-sm text-destructive"
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-destructive rounded-md hover:bg-accent transition-colors w-full text-start"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-4 h-4 shrink-0" />
                   تسجيل الخروج
                 </button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={() => navigate("/login")}>
+              </>
+            ) : (
+              <div className="space-y-3">
+                <div className="px-3 mb-1 text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider">
+                  معلومات
+                </div>
+                <Link
+                  to="/help"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                >
+                  <HelpCircle className="w-4 h-4 text-muted-foreground shrink-0" />
+                  مركز المساعدة
+                </Link>
+                <Link
+                  to="/about"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md hover:bg-accent transition-colors"
+                >
+                  <Info className="w-4 h-4 text-muted-foreground shrink-0" />
+                  من نحن
+                </Link>
+                <div className="my-3 border-t" />
+                <div className="flex gap-2 px-3">
+                  <Button variant="outline" className="flex-1" onClick={() => { navigate("/login"); setMobileOpen(false); }}>
                     تسجيل الدخول
                   </Button>
-                  <Button className="flex-1" onClick={() => navigate("/register")}>
+                  <Button className="flex-1" onClick={() => { navigate("/register"); setMobileOpen(false); }}>
                     إنشاء حساب
                   </Button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}

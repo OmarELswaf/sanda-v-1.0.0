@@ -45,7 +45,7 @@ export default function NotificationDropdown({
   };
 
   return (
-    <div className="absolute left-0 mt-2 w-96 bg-popover border rounded-lg shadow-lg z-50 overflow-hidden text-right" dir="rtl">
+    <div className="fixed sm:absolute inset-x-4 sm:inset-x-auto top-16 sm:top-auto sm:left-0 sm:mt-2 w-auto sm:w-96 bg-popover border rounded-lg shadow-lg z-50 overflow-hidden text-right" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b bg-muted/50">
         <h3 className="font-semibold text-sm">الإشعارات</h3>

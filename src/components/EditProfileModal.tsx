@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import SkillsInput from "@/components/SkillsInput";
 import UnsavedChangesDialog from "@/components/UnsavedChangesDialog";
 import type { User } from "@/api/types";
@@ -47,7 +46,6 @@ interface EditProfileModalProps {
 }
 
 export default function EditProfileModal({ open, onOpenChange, user, onSave }: EditProfileModalProps) {
-  const [isDesktop, setIsDesktop] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -64,14 +62,6 @@ export default function EditProfileModal({ open, onOpenChange, user, onSave }: E
 
   const governorates = Object.keys(GOVERNORATE_CITIES);
   const cities = governorate ? GOVERNORATE_CITIES[governorate] || [] : [];
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    setIsDesktop(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
 
   useEffect(() => {
     if (open) {
@@ -156,7 +146,7 @@ export default function EditProfileModal({ open, onOpenChange, user, onSave }: E
   };
 
   const formFields = (
-    <div className="space-y-6 text-right" dir="rtl">
+    <div className="space-y-5 sm:space-y-6 text-right" dir="rtl">
       {/* Avatar */}
       <div className="flex flex-col items-center gap-3">
         <div
@@ -217,7 +207,7 @@ export default function EditProfileModal({ open, onOpenChange, user, onSave }: E
       {/* Location */}
       <div className="space-y-1.5">
         <Label className="text-xs font-semibold">الموقع</Label>
-        <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="relative">
             <select
               value={governorate}
@@ -272,27 +262,14 @@ export default function EditProfileModal({ open, onOpenChange, user, onSave }: E
 
   return (
     <>
-      {isDesktop ? (
-        <Dialog open={open} onOpenChange={handleOpenChange}>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>تعديل الملف الشخصي</DialogTitle>
-            </DialogHeader>
-            {formFields}
-          </DialogContent>
-        </Dialog>
-      ) : (
-        <Drawer open={open} onOpenChange={handleOpenChange}>
-          <DrawerContent className="max-h-[90vh] overflow-y-auto">
-            <DrawerHeader>
-              <DrawerTitle>تعديل الملف الشخصي</DrawerTitle>
-            </DrawerHeader>
-            <div className="px-4 pb-6">
-              {formFields}
-            </div>
-          </DrawerContent>
-        </Drawer>
-      )}
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent className="sm:max-w-lg max-w-[calc(100%-2rem)] max-h-[85dvh] overflow-y-auto my-4 [&>button]:left-4 [&>button]:right-auto">
+          <DialogHeader>
+            <DialogTitle>تعديل الملف الشخصي</DialogTitle>
+          </DialogHeader>
+          {formFields}
+        </DialogContent>
+      </Dialog>
 
       <UnsavedChangesDialog
         open={showUnsavedDialog}

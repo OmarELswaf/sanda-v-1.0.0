@@ -1,6 +1,7 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
@@ -24,6 +25,7 @@ import NotificationsPage from "./pages/notifications/NotificationsPage";
 import Settings from "./pages/settings/Settings";
 import Verification from "./pages/settings/Verification";
 import Help from "./pages/help/Help";
+import About from "./pages/help/About";
 import Terms from "./pages/help/Terms";
 import Privacy from "./pages/help/Privacy";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -38,6 +40,28 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
 });
+
+/**
+ * Scrolls the window to the top on every client-side route change,
+ * so that pages like /chat, /jobs, /profile etc. always open at the top
+ * regardless of the previous page's scroll position.
+ *
+ * Respects prefers-reduced-motion for users who opt out of smooth scrolling.
+ * Skips the very first render so a hard reload doesn't fight the browser's
+ * default scroll restoration.
+ */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, left: 0, behavior: reduceMotion ? "auto" : "auto" });
+  }, [pathname]);
+
+  return null;
+}
 
 function AppProviders({ children }: { children: ReactNode }) {
   return (
@@ -65,12 +89,14 @@ function PublicOnlyRoute({ children }: { children: ReactNode }) {
 const App = () => (
   <AppProviders>
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* Public */}
         <Route path="/" element={<PublicOnlyRoute><Landing /></PublicOnlyRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/help" element={<Help />} />
+        <Route path="/about" element={<About />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
 

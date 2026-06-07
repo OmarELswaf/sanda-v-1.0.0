@@ -23,7 +23,39 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
       <Header />
       <div className="flex-1 bg-muted/10 py-6 md:py-10 px-4">
         <div className="max-w-6xl mx-auto bg-card rounded-2xl shadow-md border border-border overflow-hidden">
-          <div className="flex">
+          <div className="flex-col md:flex-row flex">
+            {/* Mobile Tabs */}
+            <div className="md:hidden border-b border-border overflow-x-auto w-full">
+              <div className="flex gap-1 p-2">
+                <Button
+                  variant={isActive("/settings") ? "secondary" : "ghost"}
+                  size="sm"
+                  className="whitespace-nowrap gap-1.5 text-xs rounded-lg"
+                  onClick={() => navigate("/settings")}
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  عام والأمان
+                </Button>
+                <Button
+                  variant={isActive("/settings/verification") ? "secondary" : "ghost"}
+                  size="sm"
+                  className="whitespace-nowrap gap-1.5 text-xs rounded-lg"
+                  onClick={() => navigate("/settings/verification")}
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                  توثيق الحساب
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="whitespace-nowrap gap-1.5 text-xs rounded-lg"
+                  onClick={() => navigate("/profile/" + user?.id)}
+                >
+                  العرض الشخصي
+                </Button>
+              </div>
+            </div>
+
             {/* Sidebar */}
             <aside className="w-64 border-l bg-muted/30 p-5 space-y-2 hidden md:block">
               <nav className="space-y-1">
@@ -55,7 +87,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 p-6 md:p-10 flex justify-center">{children}</main>
+            <main className="flex-1 p-4 sm:p-6 md:p-10 flex justify-center min-w-0">{children}</main>
           </div>
         </div>
       </div>

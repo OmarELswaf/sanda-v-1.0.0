@@ -60,9 +60,10 @@ export default function Footer() {
         <div className="border-t border-background/10 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-background/40">
           <p>© {new Date().getFullYear()} سندة. جميع الحقوق محفوظة.</p>
           <div className="flex items-center gap-4">
-            <Link to="/help" className="hover:text-background transition-colors">مركز المساعدة</Link>
-            <Link to="/terms" className="hover:text-background transition-colors">الشروط</Link>
-            <Link to="/privacy" className="hover:text-background transition-colors">الخصوصية</Link>
+            <Link to="/help" className="hover:text-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm">مركز المساعدة</Link>
+            <Link to="/about" className="hover:text-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm">من نحن</Link>
+            <Link to="/terms" className="hover:text-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm">الشروط</Link>
+            <Link to="/privacy" className="hover:text-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-foreground rounded-sm">الخصوصية</Link>
           </div>
         </div>
       </div>
