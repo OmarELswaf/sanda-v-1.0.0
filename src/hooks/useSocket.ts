@@ -1,12 +1,14 @@
 import { useEffect } from "react";
 import { socket } from "@/lib/socket";
 
-export const useSocket = (event: string, callback: (data: any) => void) => {
+export const useSocket = <TData = Record<string, unknown>>(event: string, callback: (data: TData) => void) => {
   useEffect(() => {
-    socket.on(event, callback);
+    const listener = callback as (data: Record<string, unknown>) => void;
+
+    socket.on(event, listener);
 
     return () => {
-      socket.off(event, callback);
+      socket.off(event, listener);
     };
   }, [event, callback]);
 

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Wallet, MessageCircle, QrCode, Briefcase, Search, Star, Users, TrendingUp } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Wallet, MessageCircle, QrCode, Briefcase, Search, Star, Users, TrendingUp, type LucideIcon } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
 import { Button } from "@/components/ui/button";
 import heroImg from "@/assets/hero-workers.jpg";
@@ -216,7 +216,7 @@ function Stat({ n, l }: { n: string; l: string }) {
   );
 }
 
-function StatCard({ icon: Icon, value, label }: { icon: any; value: string; label: string }) {
+function StatCard({ icon: Icon, value, label }: { icon: LucideIcon; value: string; label: string }) {
   return (
     <div className="bg-background/5 border border-background/10 rounded-xl p-5">
       <Icon className="h-6 w-6 text-accent mb-3" />

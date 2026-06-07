@@ -1,4 +1,5 @@
-import { Users, Briefcase, Wallet, Flag, TrendingUp, Activity } from "lucide-react";
+import { Users, Briefcase, Wallet, Flag, TrendingUp, Activity, type LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import {
   Bar,
   BarChart,
@@ -82,7 +83,7 @@ const colorMap: Record<string, string> = {
   accent: "bg-accent/10 text-accent",
 };
 
-function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: any; color: string }) {
+function StatCard({ icon: Icon, label, value, color }: { icon: LucideIcon; label: string; value: ReactNode; color: string }) {
   return (
     <div className="bg-card border border-border rounded-xl p-4">
       <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${colorMap[color]}`}>

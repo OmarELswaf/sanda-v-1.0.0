@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, MessageCircle, Eye, ShieldAlert, Clock, FileDown } from "lucide-react";
+import { Search, MessageCircle, Eye, ShieldAlert, Clock, FileDown, type LucideIcon } from "lucide-react";
 import AdminLayout from "@/layouts/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -226,7 +226,7 @@ export default function AdminChatMonitor() {
   );
 }
 
-function KpiBox({ icon: Icon, label, value, cls }: { icon: any; label: string; value: number; cls: string }) {
+function KpiBox({ icon: Icon, label, value, cls }: { icon: LucideIcon; label: string; value: number; cls: string }) {
   return (
     <Card>
       <CardContent className="p-4 flex items-center gap-3">

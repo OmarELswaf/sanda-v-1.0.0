@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Activity, Filter, Search, Download, Calendar, User } from "lucide-react";
+import { Activity, Filter, Search, Download, Calendar, User, type LucideIcon } from "lucide-react";
 import AdminLayout from "@/layouts/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -185,7 +185,7 @@ export default function AdminUserLogs() {
   );
 }
 
-function Kpi({ icon: Icon, label, value, cls }: { icon: any; label: string; value: number; cls: string }) {
+function Kpi({ icon: Icon, label, value, cls }: { icon: LucideIcon; label: string; value: number; cls: string }) {
   return (
     <Card>
       <CardContent className="p-4 flex items-center gap-3">
