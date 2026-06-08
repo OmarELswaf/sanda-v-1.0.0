@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Eye, Pencil, Trash2, User, Star, MapPin } from "lucide-react";
 import AdminLayout from "@/layouts/AdminLayout";
 import { AdminDataTable } from "@/components/admin/AdminDataTable";
@@ -58,13 +59,13 @@ function formatDate(dateStr: string) {
 }
 
 export default function AdminJobs() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const [viewJobId, setViewJobId] = useState<string | null>(null);
   const [editJobId, setEditJobId] = useState<string | null>(null);
   const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
 
@@ -83,8 +84,6 @@ export default function AdminJobs() {
   const total = query.data?.total ?? 0;
   const currentPage = query.data?.page ?? 1;
   const currentPageSize = query.data?.pageSize ?? 10;
-
-  const viewJob = viewJobId ? jobs.find((j) => j.id === viewJobId) ?? null : null;
 
   const [editForm, setEditForm] = useState({
     title: "",
@@ -255,6 +254,7 @@ export default function AdminJobs() {
               data={jobs}
               columns={columns}
               emptyMessage="لا توجد وظائف مطابقة للبحث."
+              onRowClick={(j) => navigate(`/admin/jobs/${j.id}`)}
               mobileRender={(j: Job) => (
                 <Card className="border border-border">
                   <CardContent className="p-4">
@@ -274,13 +274,13 @@ export default function AdminJobs() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">{formatDate(j.createdAt)}</span>
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setViewJobId(j.id)}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); navigate(`/admin/jobs/${j.id}`); }}>
                           <Eye className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openEdit(j)}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); openEdit(j); }}>
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setDeleteJobId(j.id)}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); setDeleteJobId(j.id); }}>
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
@@ -293,7 +293,7 @@ export default function AdminJobs() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setViewJobId(j.id)}
+                    onClick={(e) => { e.stopPropagation(); navigate(`/admin/jobs/${j.id}`); }}
                     aria-label={`عرض تفاصيل ${j.title}`}
                   >
                     <Eye className="h-3.5 w-3.5" />
@@ -301,7 +301,7 @@ export default function AdminJobs() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => openEdit(j)}
+                    onClick={(e) => { e.stopPropagation(); openEdit(j); }}
                     aria-label={`تعديل ${j.title}`}
                   >
                     <Pencil className="h-3.5 w-3.5" />
@@ -310,7 +310,7 @@ export default function AdminJobs() {
                     variant="ghost"
                     size="sm"
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => setDeleteJobId(j.id)}
+                    onClick={(e) => { e.stopPropagation(); setDeleteJobId(j.id); }}
                     aria-label={`حذف ${j.title}`}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -334,63 +334,6 @@ export default function AdminJobs() {
           </>
         )}
       </div>
-
-      <Modal
-        open={!!viewJobId}
-        onOpenChange={(open) => {
-          if (!open) setViewJobId(null);
-        }}
-        title="تفاصيل الوظيفة"
-        size="lg"
-      >
-        {viewJob && (
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-bold text-lg">{viewJob.title}</h3>
-              <Badge
-                variant={statusBadgeConfig[viewJob.status].variant}
-                className={statusBadgeConfig[viewJob.status].className}
-              >
-                {statusLabel[viewJob.status]}
-              </Badge>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">الفئة:</span>
-                <p className="font-medium">{viewJob.category}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">المدينة:</span>
-                <p className="font-medium">{viewJob.city}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">الميزانية:</span>
-                <p className="font-medium text-primary">
-                  {viewJob.price.toLocaleString()} ج
-                </p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">تاريخ النشر:</span>
-                <p className="font-medium">{formatDate(viewJob.createdAt)}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">صاحب العمل:</span>
-                <p className="font-medium">{viewJob.employer?.name || "—"}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">المتقدمون:</span>
-                <p className="font-medium">{viewJob.applicantsCount}</p>
-              </div>
-            </div>
-            <div>
-              <span className="text-sm text-muted-foreground">الوصف:</span>
-              <p className="text-sm mt-1 bg-muted/50 rounded-lg p-3 leading-relaxed">
-                {viewJob.description}
-              </p>
-            </div>
-          </div>
-        )}
-      </Modal>
 
       <Modal
         open={!!editJobId}

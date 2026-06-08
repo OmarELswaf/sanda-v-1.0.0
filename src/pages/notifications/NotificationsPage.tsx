@@ -65,6 +65,8 @@ export default function NotificationsPage() {
     }
     if (notif.metadata?.jobId) {
       navigate(`/admin/jobs/${notif.metadata.jobId}`);
+    } else if (notif.metadata?.reportId) {
+      navigate(`/admin/reports/${notif.metadata.reportId}`);
     } else if (notif.metadata?.conversationId) {
       navigate(`/chat`);
     }

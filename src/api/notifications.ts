@@ -14,7 +14,7 @@ const mockNotifications: Notification[] = [
     roleTarget: "admin",
     isRead: false,
     createdAt: "2026-06-08T09:00:00",
-    metadata: { reportId: "r1", userId: "u1" },
+    metadata: { reportId: "rp1", userId: "u1" },
   },
   {
     id: "a2",
@@ -44,7 +44,7 @@ const mockNotifications: Notification[] = [
     roleTarget: "admin",
     isRead: false,
     createdAt: "2026-06-08T10:15:00",
-    metadata: { reportId: "r2" },
+    metadata: { reportId: "rp2" },
   },
   {
     id: "a5",
