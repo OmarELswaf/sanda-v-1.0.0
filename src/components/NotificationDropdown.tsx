@@ -73,6 +73,10 @@ export default function NotificationDropdown({
       window.location.href = isAdmin
         ? `/admin/jobs/${notif.metadata.jobId}`
         : `/jobs/${notif.metadata.jobId}`;
+    } else if (notif.metadata?.reportId) {
+      window.location.href = isAdmin
+        ? `/admin/reports/${notif.metadata.reportId}`
+        : `/admin/reports/${notif.metadata.reportId}`;
     } else if (notif.metadata?.conversationId) {
       window.location.href = `/chat`;
     }

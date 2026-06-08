@@ -32,6 +32,7 @@ import AdminLogin from "./pages/auth/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminReports from "./pages/admin/AdminReports";
+import AdminReportDetail from "./pages/admin/AdminReportDetail";
 import AdminJobDetail from "./pages/admin/AdminJobDetail";
 import AdminJobs from "./pages/admin/AdminJobs";
 import AdminWallet from "./pages/admin/AdminWallet";
@@ -144,6 +145,7 @@ const App = () => (
         <Route path="/admin" element={<AdminRedirect />} />
         <Route path="/admin/users" element={<ProtectedRoute roles={["admin"]}><AdminUsers /></ProtectedRoute>} />
         <Route path="/admin/reports" element={<ProtectedRoute roles={["admin"]}><AdminReports /></ProtectedRoute>} />
+        <Route path="/admin/reports/:id" element={<ProtectedRoute roles={["admin"]}><AdminReportDetail /></ProtectedRoute>} />
         <Route path="/admin/jobs" element={<ProtectedRoute roles={["admin"]}><AdminJobs /></ProtectedRoute>} />
         <Route path="/admin/jobs/:id" element={<ProtectedRoute roles={["admin"]}><AdminJobDetail /></ProtectedRoute>} />
         <Route path="/admin/wallet" element={<ProtectedRoute roles={["admin"]}><AdminWallet /></ProtectedRoute>} />

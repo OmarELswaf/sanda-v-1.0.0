@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Eye, XCircle, CheckCircle, Trash2 } from "lucide-react";
 import AdminLayout from "@/layouts/AdminLayout";
 import { useReportsQuery, useUpdateReportStatus, useDeleteReport } from "@/hooks/useAdminQueries";
@@ -7,7 +8,6 @@ import { Pagination } from "@/components/admin/Pagination";
 import { Search } from "@/components/admin/Search";
 import { FilterBar } from "@/components/admin/FilterBar";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { Modal } from "@/components/admin/Modal";
 import { ErrorState } from "@/components/admin/ErrorState";
 import { TableSkeleton } from "@/components/admin/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
@@ -31,12 +31,12 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function AdminReports() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
 
   const { data: response, isLoading, isError, error, refetch } = useReportsQuery({
@@ -145,6 +145,7 @@ export default function AdminReports() {
           <>
             <AdminDataTable<Report>
               data={reports}
+              onRowClick={(r) => navigate(`/admin/reports/${r.id}`)}
               columns={[
                 {
                   key: "reporter",
@@ -213,7 +214,7 @@ export default function AdminReports() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">{new Date(r.createdAt).toLocaleDateString("ar-EG")}</span>
                       <div className="flex items-center gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => setSelectedReport(r)}><Eye className="h-4 w-4" /></Button>
+                        <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); navigate(`/admin/reports/${r.id}`); }}><Eye className="h-4 w-4" /></Button>
                         {r.status === "open" && (
                           <Button size="sm" variant="ghost" className="text-amber-600 hover:text-amber-700 hover:bg-amber-500/10" onClick={() => handleResolve(r)}><CheckCircle className="h-4 w-4" /></Button>
                         )}
@@ -231,7 +232,7 @@ export default function AdminReports() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => setSelectedReport(r)}
+                    onClick={() => navigate(`/admin/reports/${r.id}`)}
                     aria-label="عرض التفاصيل"
                   >
                     <Eye className="h-4 w-4" />
@@ -284,57 +285,6 @@ export default function AdminReports() {
           </>
         )}
       </div>
-
-      <Modal
-        open={!!selectedReport}
-        onOpenChange={(open) => { if (!open) setSelectedReport(null); }}
-        title="تفاصيل البلاغ"
-        size="lg"
-      >
-        {selectedReport && (
-          <div className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-muted/50 rounded-lg p-4">
-                <p className="text-xs text-muted-foreground mb-1">المُبلغ</p>
-                <p className="font-semibold">{selectedReport.reportedBy?.name || "غير معروف"}</p>
-                <p className="text-xs text-muted-foreground mt-1">المعرف: {selectedReport.reportedById}</p>
-              </div>
-              <div className="bg-muted/50 rounded-lg p-4">
-                <p className="text-xs text-muted-foreground mb-1">المُبلغ عنه</p>
-                <p className="font-semibold">{selectedReport.reportedUser?.name || "غير معروف"}</p>
-                <p className="text-xs text-muted-foreground mt-1">المعرف: {selectedReport.reportedUserId}</p>
-              </div>
-            </div>
-
-            {selectedReport.job && (
-              <div className="bg-muted/50 rounded-lg p-4">
-                <p className="text-xs text-muted-foreground mb-1">الوظيفة المرتبطة</p>
-                <p className="font-semibold">{selectedReport.job.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {selectedReport.job.city} — {selectedReport.job.price.toLocaleString()} ج
-                </p>
-              </div>
-            )}
-
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">سبب البلاغ</p>
-              <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap">
-                {selectedReport.reason}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">الحالة:</span>
-                <StatusBadge status={selectedReport.status} />
-              </div>
-              <span className="text-xs text-muted-foreground">
-                {new Date(selectedReport.createdAt).toLocaleDateString("ar-EG")}
-              </span>
-            </div>
-          </div>
-        )}
-      </Modal>
 
       <ConfirmDialog
         open={!!deleteTarget}
