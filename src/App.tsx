@@ -28,7 +28,6 @@ import Help from "./pages/help/Help";
 import About from "./pages/help/About";
 import Terms from "./pages/help/Terms";
 import Privacy from "./pages/help/Privacy";
-import AdminLogin from "./pages/auth/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminReports from "./pages/admin/AdminReports";
@@ -93,15 +92,7 @@ function AdminRedirect() {
   if (isAuthenticated && user?.role === "admin") {
     return <AdminDashboard />;
   }
-  return <Navigate to="/admin/login" replace />;
-}
-
-function AdminLoginRoute() {
-  const { isAuthenticated, user } = useAuth();
-  if (isAuthenticated && user?.role === "admin") {
-    return <Navigate to="/admin" replace />;
-  }
-  return <AdminLogin />;
+  return <Navigate to="/login" replace />;
 }
 
 const App = () => (
@@ -140,7 +131,6 @@ const App = () => (
         <Route path="/settings/verification" element={<ProtectedRoute><Verification /></ProtectedRoute>} />
 
         {/* Admin */}
-        <Route path="/admin/login" element={<AdminLoginRoute />} />
         <Route path="/admin" element={<AdminRedirect />} />
         <Route path="/admin/users" element={<ProtectedRoute roles={["admin"]}><AdminUsers /></ProtectedRoute>} />
         <Route path="/admin/reports" element={<ProtectedRoute roles={["admin"]}><AdminReports /></ProtectedRoute>} />

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Briefcase, User } from "lucide-react";
+import { Briefcase, Shield, User } from "lucide-react";
 import AuthLayout from "@/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,7 +74,7 @@ export default function Login() {
 
 export function RoleToggle({ role, onChange }: { role: UserRole; onChange: (r: UserRole) => void }) {
   return (
-    <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl">
+    <div className="grid grid-cols-3 gap-2 p-1 bg-muted rounded-xl">
       <button
         type="button"
         onClick={() => onChange("worker")}
@@ -92,6 +92,15 @@ export function RoleToggle({ role, onChange }: { role: UserRole; onChange: (r: U
         }`}
       >
         <Briefcase className="h-4 w-4" /> صاحب عمل
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("admin")}
+        className={`flex items-center justify-center gap-2 py-2.5 rounded-lg font-semibold transition ${
+          role === "admin" ? "bg-card shadow text-primary" : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        <Shield className="h-4 w-4" /> مدير
       </button>
     </div>
   );
