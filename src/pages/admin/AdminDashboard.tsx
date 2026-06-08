@@ -13,8 +13,8 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
-    <div>
-      <h1 className="font-heading font-extrabold text-3xl mb-2">لوحة التحكم</h1>
+    <div className="px-4 sm:px-6">
+      <h1 className="font-heading font-extrabold text-2xl md:text-3xl mb-2">لوحة التحكم</h1>
       <p className="text-muted-foreground mb-8">نظرة عامة على نشاط منصة سندة</p>
 
       {isLoading ? (

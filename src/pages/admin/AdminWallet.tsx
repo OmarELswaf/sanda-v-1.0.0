@@ -3,6 +3,7 @@ import { Download, Wallet, TrendingUp, TrendingDown, Banknote } from "lucide-rea
 import AdminLayout from "@/layouts/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { AdminDataTable, type Column } from "@/components/admin/AdminDataTable";
 import { Pagination } from "@/components/admin/Pagination";
 import { Search } from "@/components/admin/Search";
@@ -152,7 +153,7 @@ export default function AdminWallet() {
 
   return (
     <AdminLayout>
-      <h1 className="font-heading font-extrabold text-3xl mb-2">إدارة المحفظة</h1>
+      <h1 className="font-heading font-extrabold text-2xl md:text-3xl mb-2">إدارة المحفظة</h1>
       <p className="text-muted-foreground mb-6">المدفوعات، الضمان، وسجل المعاملات المالية</p>
 
       {/* Stats Cards */}
@@ -220,7 +221,7 @@ export default function AdminWallet() {
         />
         <div className="flex items-center gap-2 flex-wrap">
           <FilterBar filters={filterConfigs} onClearAll={handleClearFilters} />
-          <Button variant="outline" onClick={handleExport} aria-label="تصدير البيانات إلى CSV">
+          <Button variant="outline" onClick={handleExport} aria-label="تصدير البيانات إلى CSV" className="w-full sm:w-auto">
             <Download className="h-4 w-4 ml-2" />
             تصدير CSV
           </Button>
@@ -239,6 +240,25 @@ export default function AdminWallet() {
               data={transactions}
               columns={columns}
               emptyMessage="لا توجد معاملات مطابقة"
+              mobileRender={(t: WalletTransaction) => {
+                const label = TYPE_OPTIONS.find((o) => o.value === t.transactionType)?.label ?? t.transactionType;
+                const { color, prefix } = getAmountMeta(t.transactionType);
+                return (
+                  <Card className="border border-border">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-mono text-xs text-muted-foreground truncate max-w-[50%]">{t.id}</span>
+                        <Badge variant="outline">{label}</Badge>
+                      </div>
+                      <div className={`font-semibold text-lg mb-2 ${color}`}>{prefix}{formatCurrency(t.amount)}</div>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span className="truncate max-w-[60%]">{t.jobTitle || "—"}</span>
+                        <span>{t.createdAt ? new Date(t.createdAt).toLocaleDateString("ar-EG", { dateStyle: "short" }) : "—"}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }}
             />
           )}
         </CardContent>

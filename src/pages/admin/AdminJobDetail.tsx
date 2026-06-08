@@ -35,7 +35,7 @@ const roleLabel: Record<string, string> = {
 
 function JobSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-0">
       <div className="flex items-center gap-4">
         <Skeleton className="h-9 w-24" />
       </div>
@@ -201,7 +201,7 @@ export default function AdminJobDetail() {
           </div>
 
           {/* Publisher Info — 1/3 */}
-          <div className="space-y-6">
+      <div className="space-y-6 px-4 sm:px-0">
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-3">

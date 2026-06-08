@@ -10,6 +10,7 @@ import { TableSkeleton } from "@/components/admin/TableSkeleton";
 import { useChatConversationsQuery, useChatConversationQuery } from "@/hooks/useAdminQueries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Eye, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Conversation } from "@/api/types";
@@ -119,7 +120,7 @@ export default function AdminChatMonitor() {
 
   return (
     <AdminLayout>
-      <h1 className="font-heading font-extrabold text-3xl mb-2">مراقبة المحادثات</h1>
+      <h1 className="font-heading font-extrabold text-2xl md:text-3xl mb-2">مراقبة المحادثات</h1>
       <p className="text-muted-foreground mb-6">
         مراجعة محتوى المحادثات لضمان الامتثال لقواعد المنصة
       </p>
@@ -177,6 +178,29 @@ export default function AdminChatMonitor() {
                   <Eye className="h-3.5 w-3.5 ml-1" />
                   عرض المحادثة
                 </Button>
+              )}
+              mobileRender={(item: Conversation) => (
+                <Card className="border border-border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-sm">{item.participant.name}</span>
+                      {item.unread > 0 ? (
+                        <Badge variant="destructive" className="text-xs">{item.unread}</Badge>
+                      ) : null}
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-1">{item.jobTitle}</div>
+                    <div className="text-sm text-muted-foreground truncate mb-2">{item.lastMessage}</div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {new Date(item.lastMessageAt).toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" })}
+                      </div>
+                      <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleViewConversation(item); }}>
+                        <Eye className="h-3.5 w-3.5 ml-1" /> عرض المحادثة
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               )}
             />
 

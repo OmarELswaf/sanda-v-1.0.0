@@ -12,6 +12,7 @@ import { ErrorState } from "@/components/admin/ErrorState";
 import { TableSkeleton } from "@/components/admin/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -184,7 +185,7 @@ export default function AdminJobs() {
   if (query.isError) {
     return (
       <AdminLayout>
-        <h1 className="font-heading font-extrabold text-3xl mb-2">إدارة الوظائف</h1>
+        <h1 className="font-heading font-extrabold text-2xl md:text-3xl mb-2">إدارة الوظائف</h1>
         <ErrorState
           title="خطأ في تحميل الوظائف"
           message={(query.error as Error)?.message || "حدث خطأ أثناء تحميل البيانات"}
@@ -198,7 +199,7 @@ export default function AdminJobs() {
     <AdminLayout>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
         <div>
-          <h1 className="font-heading font-extrabold text-3xl mb-1">إدارة الوظائف</h1>
+          <h1 className="font-heading font-extrabold text-2xl md:text-3xl mb-1">إدارة الوظائف</h1>
           <p className="text-muted-foreground">{total} وظيفة</p>
         </div>
       </div>
@@ -254,6 +255,39 @@ export default function AdminJobs() {
               data={jobs}
               columns={columns}
               emptyMessage="لا توجد وظائف مطابقة للبحث."
+              mobileRender={(j: Job) => (
+                <Card className="border border-border">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm">{j.title}</div>
+                        <div className="text-xs text-muted-foreground">{j.category}</div>
+                      </div>
+                      <Badge variant={statusBadgeConfig[j.status].variant} className={statusBadgeConfig[j.status].className}>
+                        {statusLabel[j.status]}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                      <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{j.city}</span>
+                      <span className="font-semibold text-primary">{j.price.toLocaleString()} ج</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{formatDate(j.createdAt)}</span>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setViewJobId(j.id)}>
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openEdit(j)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setDeleteJobId(j.id)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               actions={(j) => (
                 <div className="flex items-center gap-1 justify-end">
                   <Button

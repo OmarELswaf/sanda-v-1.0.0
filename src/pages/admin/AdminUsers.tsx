@@ -9,6 +9,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { AdminDataTable } from "@/components/admin/AdminDataTable";
 import { Pagination } from "@/components/admin/Pagination";
@@ -226,7 +227,7 @@ export default function AdminUsers() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-heading font-extrabold text-3xl mb-1">إدارة المستخدمين</h1>
+          <h1 className="font-heading font-extrabold text-2xl md:text-3xl mb-1">إدارة المستخدمين</h1>
           <p className="text-muted-foreground">{total ?? 0} مستخدم على المنصة</p>
         </div>
         <Button onClick={() => { resetForm(); setCreateOpen(true); }}>
@@ -316,6 +317,65 @@ export default function AdminUsers() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+              )}
+              mobileRender={(u: User) => (
+                <Card className="border border-border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Avatar className="w-10 h-10 rounded-full">
+                        <AvatarImage src={u.avatar} />
+                        <AvatarFallback className="bg-primary/10 text-xs">{u.name?.charAt(0) || "U"}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm truncate">{u.name}</div>
+                        <div className="text-xs text-muted-foreground font-mono ltr text-end">{u.phone}</div>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 shrink-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="min-w-40">
+                          <DropdownMenuItem onClick={() => openEdit(u)}>
+                            <Edit2 className="h-4 w-4 ml-2" />
+                            تعديل
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleVerifyToggle(u)}>
+                            {u.isVerified ? (
+                              <><ShieldAlert className="h-4 w-4 ml-2" />إلغاء التوثيق</>
+                            ) : (
+                              <><ShieldCheck className="h-4 w-4 ml-2" />توثيق</>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => { setActionTarget(u); setBanOpen(true); }}>
+                            {u.isActive === false ? (
+                              <><UserCheck className="h-4 w-4 ml-2" />إلغاء الحظر</>
+                            ) : (
+                              <><Ban className="h-4 w-4 ml-2" />حظر</>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => { setActionTarget(u); setDeleteOpen(true); }}
+                          >
+                            <Trash2 className="h-4 w-4 ml-2" />
+                            حذف
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <RoleBadge role={u.role} />
+                      <StatusBadge user={u} />
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{u.city || "—"}</span>
+                      <span className="font-mono">{u.walletBalance?.toLocaleString() ?? 0} ج</span>
+                      <span>{formatDate(u.createdAt)}</span>
+                    </div>
+                  </CardContent>
+                </Card>
               )}
             />
             {total > 0 && (

@@ -17,10 +17,10 @@ interface ModalProps {
 }
 
 const sizeClasses = {
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-2xl",
+  sm: "max-w-[calc(100vw-2rem)] sm:max-w-sm",
+  md: "max-w-[calc(100vw-2rem)] sm:max-w-md",
+  lg: "max-w-[calc(100vw-2rem)] sm:max-w-lg",
+  xl: "max-w-[calc(100vw-2rem)] sm:max-w-2xl",
 };
 
 export function Modal({
@@ -33,7 +33,7 @@ export function Modal({
 }: ModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={sizeClasses[size]}>
+      <DialogContent className={`mx-4 sm:mx-auto ${sizeClasses[size]}`}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}

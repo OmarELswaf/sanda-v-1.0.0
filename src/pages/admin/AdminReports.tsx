@@ -12,6 +12,7 @@ import { ErrorState } from "@/components/admin/ErrorState";
 import { TableSkeleton } from "@/components/admin/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import type { Report } from "@/api/types";
 
 const statusMeta: Record<string, { label: string; className: string }> = {
@@ -108,7 +109,7 @@ export default function AdminReports() {
   return (
     <AdminLayout>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-        <h1 className="font-heading font-extrabold text-3xl">البلاغات والنزاعات</h1>
+        <h1 className="font-heading font-extrabold text-2xl md:text-3xl">البلاغات والنزاعات</h1>
         <p className="text-muted-foreground">{total} بلاغ</p>
       </div>
 
@@ -192,6 +193,39 @@ export default function AdminReports() {
                   ),
                 },
               ]}
+              mobileRender={(r: Report) => (
+                <Card className="border border-border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
+                          {r.reportedBy?.name?.charAt(0) || "?"}
+                        </div>
+                        <span className="font-medium text-sm">{r.reportedBy?.name || "غير معروف"}</span>
+                      </div>
+                      <StatusBadge status={r.status} />
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                      <span>أبلغ عن:</span>
+                      <span className="font-medium">{r.reportedUser?.name || "غير معروف"}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground truncate mb-3">{r.reason}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{new Date(r.createdAt).toLocaleDateString("ar-EG")}</span>
+                      <div className="flex items-center gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => setSelectedReport(r)}><Eye className="h-4 w-4" /></Button>
+                        {r.status === "open" && (
+                          <Button size="sm" variant="ghost" className="text-amber-600 hover:text-amber-700 hover:bg-amber-500/10" onClick={() => handleResolve(r)}><CheckCircle className="h-4 w-4" /></Button>
+                        )}
+                        {r.status !== "closed" && (
+                          <Button size="sm" variant="ghost" className="text-success hover:text-success hover:bg-success/10" onClick={() => handleClose(r)}><XCircle className="h-4 w-4" /></Button>
+                        )}
+                        <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setDeleteTarget(r)}><Trash2 className="h-4 w-4" /></Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               actions={(r) => (
                 <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                   <Button

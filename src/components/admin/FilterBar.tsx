@@ -28,7 +28,7 @@ export function FilterBar({ filters, onClearAll, children }: FilterBarProps) {
   );
 
   return (
-    <div className="flex flex-wrap items-center gap-3 p-4 bg-card border border-border rounded-xl">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 p-4 bg-card border border-border rounded-xl">
       {filters.map((filter) => (
         <div key={filter.key} className="flex flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground">{filter.label}</label>
@@ -43,7 +43,7 @@ export function FilterBar({ filters, onClearAll, children }: FilterBarProps) {
                 filter.onChange(selected);
               }
             }}
-            className="h-9 px-3 rounded-md border border-border bg-background text-sm min-w-32"
+            className="h-9 px-3 rounded-md border border-border bg-background text-sm min-w-32 w-full sm:w-auto"
             multiple={filter.type === "multi-select"}
           >
             <option value="">الكل</option>

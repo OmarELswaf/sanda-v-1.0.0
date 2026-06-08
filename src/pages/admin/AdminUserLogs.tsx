@@ -76,7 +76,7 @@ export default function AdminUserLogs() {
 
   return (
     <AdminLayout>
-      <h1 className="font-heading font-extrabold text-3xl mb-2">سجل نشاط المستخدمين</h1>
+      <h1 className="font-heading font-extrabold text-2xl md:text-3xl mb-2">سجل نشاط المستخدمين</h1>
       <p className="text-muted-foreground mb-6">
         تتبع إجراءات المستخدمين لأغراض الأمان والمراجعة
       </p>
@@ -96,7 +96,7 @@ export default function AdminUserLogs() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid sm:grid-cols-[1fr_200px_180px_auto] gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_200px_180px_auto] gap-3">
             <div className="relative">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -136,44 +136,75 @@ export default function AdminUserLogs() {
           {filtered.length === 0 ? (
             <div className="p-12 text-center text-muted-foreground">مفيش سجلات مطابقة.</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-right">
-                  <tr>
-                    <th className="px-4 py-3 font-semibold">المستخدم</th>
-                    <th className="px-4 py-3 font-semibold">الإجراء</th>
-                    <th className="px-4 py-3 font-semibold">نوع الهدف</th>
-                    <th className="px-4 py-3 font-semibold">معرّف الهدف</th>
-                    <th className="px-4 py-3 font-semibold">التاريخ والوقت</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {filtered.map((l) => {
-                    const user = mockUsers.find((u) => u.id === l.userId);
-                    const meta = ACTION_META[l.action] ?? FALLBACK_ACTION;
-                    return (
-                      <tr key={l.id} className={cn("hover:bg-muted/20")}>
-                        <td className="px-4 py-3">
-                          <div className="font-semibold">{user?.name ?? l.userId}</div>
-                          <div className="text-xs text-muted-foreground font-mono">{l.userId}</div>
-                        </td>
-                        <td className="px-4 py-3">
+            <>
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/40 text-right">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold">المستخدم</th>
+                      <th className="px-4 py-3 font-semibold">الإجراء</th>
+                      <th className="px-4 py-3 font-semibold">نوع الهدف</th>
+                      <th className="px-4 py-3 font-semibold">معرّف الهدف</th>
+                      <th className="px-4 py-3 font-semibold">التاريخ والوقت</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filtered.map((l) => {
+                      const user = mockUsers.find((u) => u.id === l.userId);
+                      const meta = ACTION_META[l.action] ?? FALLBACK_ACTION;
+                      return (
+                        <tr key={l.id} className={cn("hover:bg-muted/20")}>
+                          <td className="px-4 py-3">
+                            <div className="font-semibold">{user?.name ?? l.userId}</div>
+                            <div className="text-xs text-muted-foreground font-mono">{l.userId}</div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <Badge variant="outline" className={meta.cls}>{meta.label}</Badge>
+                            <div className="text-[10px] text-muted-foreground font-mono mt-0.5">{l.action}</div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <Badge variant="secondary" className="text-[10px]">{l.targetType}</Badge>
+                          </td>
+                          <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{l.targetId}</td>
+                          <td className="px-4 py-3 text-xs">
+                            {new Date(l.createdAt).toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" })}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="block md:hidden p-4 space-y-3">
+                {filtered.map((l) => {
+                  const user = mockUsers.find((u) => u.id === l.userId);
+                  const meta = ACTION_META[l.action] ?? FALLBACK_ACTION;
+                  return (
+                    <Card key={l.id} className="border border-border">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <div className="font-semibold text-sm">{user?.name ?? l.userId}</div>
+                            <div className="text-xs text-muted-foreground font-mono">{l.userId}</div>
+                          </div>
                           <Badge variant="outline" className={meta.cls}>{meta.label}</Badge>
-                          <div className="text-[10px] text-muted-foreground font-mono mt-0.5">{l.action}</div>
-                        </td>
-                        <td className="px-4 py-3">
+                        </div>
+                        <div className="flex flex-wrap gap-2 mb-2">
                           <Badge variant="secondary" className="text-[10px]">{l.targetType}</Badge>
-                        </td>
-                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{l.targetId}</td>
-                        <td className="px-4 py-3 text-xs">
+                          <span className="text-xs font-mono text-muted-foreground">{l.targetId}</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
                           {new Date(l.createdAt).toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" })}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

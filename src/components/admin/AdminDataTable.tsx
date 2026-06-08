@@ -23,6 +23,7 @@ export interface AdminDataTableProps<T extends { id: string | number }> {
   onSortChange?: (key: string) => void;
   actions?: (item: T) => ReactNode;
   onRowClick?: (item: T) => void;
+  mobileRender?: (item: T) => ReactNode;
 }
 
 export function AdminDataTable<T extends { id: string | number }>({
@@ -35,6 +36,7 @@ export function AdminDataTable<T extends { id: string | number }>({
   onSortChange,
   actions,
   onRowClick,
+  mobileRender,
 }: AdminDataTableProps<T>) {
   if (isLoading) {
     return (
@@ -51,6 +53,66 @@ export function AdminDataTable<T extends { id: string | number }>({
       <div className="p-12 text-center">
         <p className="text-muted-foreground">{emptyMessage}</p>
       </div>
+    );
+  }
+
+  if (mobileRender) {
+    return (
+      <>
+        <div className="hidden lg:block overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {columns.map((column) => (
+                  <TableHead
+                    key={column.key}
+                    className={cn(
+                      column.sortable && "cursor-pointer select-none hover:bg-muted/50",
+                      column.className
+                    )}
+                    onClick={() => column.sortable && onSortChange?.(column.key)}
+                  >
+                    <div className="flex items-center gap-1">
+                      {column.header}
+                      {column.sortable && sortKey === column.key && (
+                        <span className="text-primary">
+                          {sortDirection === "asc" ? (
+                            <ChevronUp className="h-3 w-3" />
+                          ) : (
+                            <ChevronDown className="h-3 w-3" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </TableHead>
+                ))}
+                {actions && <TableHead className="text-end">إجراء</TableHead>}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((item) => (
+                <TableRow
+                  key={item.id}
+                  className={cn(onRowClick && "cursor-pointer")}
+                  onClick={() => onRowClick?.(item)}
+                >
+                  {columns.map((column) => (
+                    <TableCell key={column.key} className={column.className}>
+                      {column.render(item)}
+                    </TableCell>
+                  ))}
+                  {actions && <TableCell className="text-end">{actions(item)}</TableCell>}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="block lg:hidden space-y-3 px-4">
+          {data.map((item) => (
+            <div key={item.id}>{mobileRender(item)}</div>
+          ))}
+        </div>
+      </>
     );
   }
 
