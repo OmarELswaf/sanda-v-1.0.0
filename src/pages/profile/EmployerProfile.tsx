@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { MapPin, ShieldCheck, Calendar, Star, Building, MessageSquare, ArrowLeft } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ export default function EmployerProfile() {
   const postedJobs = mockJobs.filter((j) => j.employerId === user.id);
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 md:px-6 py-8 max-w-4xl text-right" dir="rtl">
         {/* Back navigation */}
         <div className="flex items-center gap-2 mb-6">
@@ -163,6 +163,6 @@ export default function EmployerProfile() {
           </div>
         </div>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

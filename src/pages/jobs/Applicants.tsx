@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Check, X, Star, MapPin, MessageCircle, CreditCard } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,7 +33,7 @@ export default function Applicants() {
   };
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 md:px-6 py-10 max-w-4xl">
         <Link to={`/jobs/${id}`} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6">
           <ArrowLeft className="h-4 w-4 rotate-180" /> الرجوع للوظيفة
@@ -122,6 +122,6 @@ export default function Applicants() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </MainLayout>
+    </UserLayout>
   );
 }

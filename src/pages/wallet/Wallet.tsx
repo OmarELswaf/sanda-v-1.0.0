@@ -1,5 +1,5 @@
 import { Wallet as WalletIcon, ArrowDownToLine, ArrowUpFromLine, Clock, CheckCircle2 } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useWalletBalance, useWalletTransactions } from "@/hooks/useWallet";
@@ -19,7 +19,7 @@ export default function Wallet() {
   const { data: txs, isLoading: tLoading } = useWalletTransactions();
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 md:px-6 py-10 max-w-4xl">
         <h1 className="font-heading font-extrabold text-3xl mb-2">المحفظة</h1>
         <p className="text-muted-foreground mb-8">تابع رصيدك وعملياتك المالية</p>
@@ -83,6 +83,6 @@ export default function Wallet() {
           )}
         </div>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

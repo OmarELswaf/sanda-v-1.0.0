@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { QrCode, Camera, CheckCircle2, Clock, type LucideIcon } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useJob } from "@/hooks/useJobs";
@@ -18,9 +18,9 @@ export default function ActiveJob() {
 
   if (!job) {
     return (
-      <MainLayout>
+      <UserLayout>
         <div className="container py-20 text-center">جاري التحميل...</div>
-      </MainLayout>
+      </UserLayout>
     );
   }
 
@@ -28,7 +28,7 @@ export default function ActiveJob() {
   const isWorker = user?.role === "worker";
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 md:px-6 py-10 max-w-3xl">
         <Badge className="bg-warning/10 text-warning border-warning/20 mb-3">قيد التنفيذ</Badge>
         <h1 className="font-heading font-extrabold text-2xl md:text-3xl mb-2">{job.title}</h1>
@@ -87,7 +87,7 @@ export default function ActiveJob() {
           </Button>
         </div>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }
 

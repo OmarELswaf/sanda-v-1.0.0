@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Flag, Briefcase, Wallet, MessageCircle, Activity } from "lucide-react";
-import Header from "@/components/Header";
+import { LayoutDashboard, Users, Flag, Briefcase, Wallet, MessageCircle } from "lucide-react";
+import AdminHeader from "@/components/admin/AdminHeader";
 
 const adminLinks = [
   { to: "/admin", label: "نظرة عامة", icon: LayoutDashboard, end: true },
@@ -10,13 +10,12 @@ const adminLinks = [
   { to: "/admin/jobs", label: "الوظائف", icon: Briefcase },
   { to: "/admin/wallet", label: "المحفظة", icon: Wallet },
   { to: "/admin/chat-monitor", label: "مراقبة الدردشة", icon: MessageCircle },
-  { to: "/admin/user-logs", label: "سجل النشاط", icon: Activity },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
-      <Header />
+      <AdminHeader />
       <div className="flex-1 container mx-auto px-4 md:px-6 py-8 grid lg:grid-cols-[240px_1fr] gap-8">
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <nav className="bg-card border border-border rounded-xl p-2 space-y-1">

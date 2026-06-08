@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockUserLogs, mockUsers } from "@/lib/mock/data";
 import { cn } from "@/lib/utils";
@@ -41,7 +40,6 @@ export default function AdminUserLogs() {
   const [query, setQuery] = useState("");
   const [userId, setUserId] = useState<string>("all");
   const [targetType, setTargetType] = useState<string>("all");
-  const [isLoading] = useState(false);
 
   const filtered = useMemo(() => {
     return mockUserLogs.filter((l) => {
@@ -125,7 +123,7 @@ export default function AdminUserLogs() {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={handleExport}>
+            <Button variant="outline" onClick={handleExport} aria-label="تصدير السجلات إلى CSV">
               <Download className="h-4 w-4" /> تصدير
             </Button>
           </div>
@@ -135,9 +133,7 @@ export default function AdminUserLogs() {
       {/* Table */}
       <Card className="mt-6">
         <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-6 space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12" />)}</div>
-          ) : filtered.length === 0 ? (
+          {filtered.length === 0 ? (
             <div className="p-12 text-center text-muted-foreground">مفيش سجلات مطابقة.</div>
           ) : (
             <div className="overflow-x-auto">

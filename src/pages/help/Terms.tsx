@@ -1,5 +1,5 @@
 import { FileText, Scale, Wallet, ShieldCheck, AlertTriangle, Gavel } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -38,7 +38,7 @@ const sections = [
 
 export default function Terms() {
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 py-10 max-w-3xl" dir="rtl">
         <div className="text-center mb-8">
           <Badge variant="outline" className="mb-3">
@@ -80,6 +80,6 @@ export default function Terms() {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

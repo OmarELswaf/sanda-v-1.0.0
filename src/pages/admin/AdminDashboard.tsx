@@ -1,96 +1,90 @@
-import { Users, Briefcase, Wallet, Flag, TrendingUp, Activity, type LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Users, Briefcase, AlertTriangle, DollarSign } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ErrorState } from "@/components/admin/ErrorState";
 import AdminLayout from "@/layouts/AdminLayout";
-import { useAdminStats } from "@/hooks/useAdmin";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useDashboardStatsQuery } from "@/hooks/useAdminQueries";
 
 export default function AdminDashboard() {
-  const { data, isLoading } = useAdminStats();
+  const { data, isLoading, isError, error, refetch } = useDashboardStatsQuery();
+
+  if (isError) {
+    return <AdminLayout><ErrorState onRetry={() => refetch()} /></AdminLayout>;
+  }
 
   return (
     <AdminLayout>
+    <div>
       <h1 className="font-heading font-extrabold text-3xl mb-2">لوحة التحكم</h1>
       <p className="text-muted-foreground mb-8">نظرة عامة على نشاط منصة سندة</p>
 
       {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-          {[1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+                <div className="h-4 w-4 bg-muted rounded animate-pulse" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 w-16 bg-muted rounded animate-pulse" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      ) : data && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-          <StatCard icon={Users} label="مستخدمين" value={data.totalUsers} color="primary" />
-          <StatCard icon={Briefcase} label="إجمالي الوظائف" value={data.totalJobs} color="primary" />
-          <StatCard icon={Activity} label="وظائف نشطة" value={data.activeJobs} color="success" />
-          <StatCard icon={Wallet} label="محجوز (Escrow)" value={`${data.heldAmount.toLocaleString()} ج`} color="warning" />
-          <StatCard icon={Flag} label="بلاغات مفتوحة" value={data.openReports} color="destructive" />
-          <StatCard icon={TrendingUp} label="وظائف اليوم" value={data.jobsToday} color="accent" />
-        </div>
-      )}
+      ) : data ? (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي المستخدمين</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{data.totalUsers.toLocaleString()}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium text-muted-foreground">الوظائف النشطة</CardTitle>
+                <Briefcase className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{data.activeJobs.toLocaleString()}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium text-muted-foreground">البلاغات المفتوحة</CardTitle>
+                <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{data.openReports.toLocaleString()}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي الإيرادات</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{data.heldAmount.toLocaleString()} ج</div>
+              </CardContent>
+            </Card>
+          </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-card border border-border rounded-2xl p-6">
-          <h2 className="font-heading font-bold mb-1">الأرباح الشهرية</h2>
-          <p className="text-sm text-muted-foreground mb-4">الإيرادات الإجمالية بالجنيه</p>
-          {data && (
-            <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={data.revenueByMonth}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                <Line type="monotone" dataKey="amount" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 4 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-
-        <div className="bg-card border border-border rounded-2xl p-6">
-          <h2 className="font-heading font-bold mb-1">الوظائف حسب الفئة</h2>
-          <p className="text-sm text-muted-foreground mb-4">توزيع الوظائف</p>
-          {data && (
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={data.jobsByCategory}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="category" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                <Bar dataKey="count" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-      </div>
-    </AdminLayout>
-  );
-}
-
-const colorMap: Record<string, string> = {
-  primary: "bg-primary-soft text-primary",
-  success: "bg-success/10 text-success",
-  warning: "bg-warning/10 text-warning",
-  destructive: "bg-destructive/10 text-destructive",
-  accent: "bg-accent/10 text-accent",
-};
-
-function StatCard({ icon: Icon, label, value, color }: { icon: LucideIcon; label: string; value: ReactNode; color: string }) {
-  return (
-    <div className="bg-card border border-border rounded-xl p-4">
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${colorMap[color]}`}>
-        <Icon className="h-4 w-4" />
-      </div>
-      <div className="font-heading font-extrabold text-xl">{value}</div>
-      <div className="text-xs text-muted-foreground mt-0.5">{label}</div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">نشاط اليوم</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground">
+                تم إنشاء <span className="font-semibold text-foreground">{data.jobsToday}</span> وظيفة جديدة اليوم
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      ) : null}
     </div>
+    </AdminLayout>
   );
 }

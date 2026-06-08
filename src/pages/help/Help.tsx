@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { HelpCircle, Mail, Phone, MessageCircle, ChevronDown, Search, BookOpen, ShieldCheck, Wallet, Briefcase, Star } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -114,7 +114,7 @@ export default function Help() {
   });
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 py-10 max-w-4xl" dir="rtl">
         {/* Hero */}
         <div className="text-center mb-10">
@@ -242,6 +242,6 @@ export default function Help() {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

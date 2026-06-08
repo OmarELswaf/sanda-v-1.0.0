@@ -1,14 +1,43 @@
-import { Bell, Check, Trash2, MessageSquare, Briefcase, Wallet, AlertTriangle, Info } from "lucide-react";
+import { Bell, Check, Trash2, Briefcase, User, Flag, Info } from "lucide-react";
 import type { Notification } from "@/api/types";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
+const SECOND = 1000;
+const MINUTE = 60 * SECOND;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+const WEEK = 7 * DAY;
+
+function timeAgo(dateStr: string): string {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diff = now - then;
+  if (diff < MINUTE) return "الآن";
+  if (diff < HOUR) {
+    const m = Math.floor(diff / MINUTE);
+    return `منذ ${m} دقيقة`;
+  }
+  if (diff < DAY) {
+    const h = Math.floor(diff / HOUR);
+    return `منذ ${h} ساعة`;
+  }
+  if (diff < WEEK) {
+    const d = Math.floor(diff / DAY);
+    return `منذ ${d} يوم`;
+  }
+  return new Date(dateStr).toLocaleDateString("ar-EG", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+const MAX_VISIBLE = 10;
+
 const typeConfig: Record<string, { icon: ReactNode; label: string; color: string }> = {
   job: { icon: <Briefcase className="w-4 h-4" />, label: "وظائف", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
-  application: { icon: <Briefcase className="w-4 h-4" />, label: "تقديمات", color: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" },
-  message: { icon: <MessageSquare className="w-4 h-4" />, label: "رسائل", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300" },
-  payment: { icon: <Wallet className="w-4 h-4" />, label: "مدفوعات", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" },
-  sos: { icon: <AlertTriangle className="w-4 h-4" />, label: "طوارئ", color: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" },
+  user: { icon: <User className="w-4 h-4" />, label: "مستخدمين", color: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" },
+  report: { icon: <Flag className="w-4 h-4" />, label: "بلاغات", color: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" },
   system: { icon: <Info className="w-4 h-4" />, label: "نظام", color: "bg-gray-100 text-gray-700 dark:bg-gray-800/40 dark:text-gray-300" },
 };
 
@@ -16,6 +45,7 @@ interface NotificationDropdownProps {
   notifications?: Notification[];
   isLoading: boolean;
   unreadCount: number;
+  userRole?: string;
   onMarkRead: (id: string) => void;
   onMarkAllRead: () => void;
   onDelete: (id: string) => void;
@@ -26,18 +56,23 @@ export default function NotificationDropdown({
   notifications,
   isLoading,
   unreadCount,
+  userRole,
   onMarkRead,
   onMarkAllRead,
   onDelete,
   onClose,
 }: NotificationDropdownProps) {
+  const visible = notifications?.slice(0, MAX_VISIBLE) ?? [];
+  const isAdmin = userRole === "admin";
+
   const handleNotificationClick = (notif: Notification) => {
     if (!notif.isRead) {
       onMarkRead(notif.id);
     }
-    // Navigate based on notification type
     if (notif.metadata?.jobId) {
-      window.location.href = `/jobs/${notif.metadata.jobId}`;
+      window.location.href = isAdmin
+        ? `/admin/jobs/${notif.metadata.jobId}`
+        : `/jobs/${notif.metadata.jobId}`;
     } else if (notif.metadata?.conversationId) {
       window.location.href = `/chat`;
     }
@@ -63,11 +98,19 @@ export default function NotificationDropdown({
       {/* Notifications List */}
       <div className="max-h-96 overflow-y-auto">
         {isLoading ? (
-          <div className="p-4 text-center text-muted-foreground text-sm">
-            جاري التحميل...
+          <div className="p-4 space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-start gap-3 animate-pulse">
+                <div className="w-8 h-8 rounded-full bg-muted shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-muted rounded w-3/4" />
+                  <div className="h-2 bg-muted rounded w-full" />
+                </div>
+              </div>
+            ))}
           </div>
-        ) : notifications && notifications.length > 0 ? (
-          notifications.map((notif) => {
+        ) : visible.length > 0 ? (
+          visible.map((notif) => {
             const config = typeConfig[notif.type] || typeConfig.system;
             return (
             <div
@@ -88,15 +131,10 @@ export default function NotificationDropdown({
                   {notif.title}
                 </p>
                 <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                  {notif.body}
+                  {notif.message}
                 </p>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {new Date(notif.createdAt).toLocaleDateString("ar-EG", {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {timeAgo(notif.createdAt)}
                 </p>
               </div>
               <button
@@ -121,15 +159,17 @@ export default function NotificationDropdown({
       </div>
 
       {/* Footer */}
-      <div className="p-2 border-t bg-muted/30 text-center">
-        <a
-          href="/notifications"
-          className="text-xs text-primary hover:underline"
-          onClick={onClose}
-        >
-          عرض كل الإشعارات
-        </a>
-      </div>
+      {isAdmin && (
+        <div className="p-2 border-t bg-muted/30 text-center">
+          <a
+            href="/notifications"
+            className="text-xs text-primary hover:underline"
+            onClick={onClose}
+          >
+            عرض كل الإشعارات
+          </a>
+        </div>
+      )}
     </div>
   );
 }

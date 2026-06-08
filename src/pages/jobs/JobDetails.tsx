@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { MapPin, Clock, Calendar, Users, Star, ShieldCheck, MessageCircle, ArrowLeft } from "lucide-react";
 import MapView from "@/components/MapView";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,13 +30,13 @@ export default function JobDetails() {
     setMessage("");
   };
 
-  if (isLoading) return <MainLayout><div className="container mx-auto px-4 py-10"><Skeleton className="h-96 rounded-xl" /></div></MainLayout>;
-  if (!job) return <MainLayout><div className="container mx-auto px-4 py-20 text-center text-muted-foreground">الوظيفة غير موجودة.</div></MainLayout>;
+  if (isLoading) return <UserLayout><div className="container mx-auto px-4 py-10"><Skeleton className="h-96 rounded-xl" /></div></UserLayout>;
+  if (!job) return <UserLayout><div className="container mx-auto px-4 py-20 text-center text-muted-foreground">الوظيفة غير موجودة.</div></UserLayout>;
 
   const isWorker = user?.role === "worker";
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 md:px-6 py-8">
         <Link to="/jobs" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6">
           <ArrowLeft className="h-4 w-4 rotate-180" /> الرجوع للوظائف
@@ -164,6 +164,6 @@ export default function JobDetails() {
           </aside>
         </div>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

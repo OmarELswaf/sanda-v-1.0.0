@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, MapPin, SlidersHorizontal } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import JobCard from "@/components/jobs/JobCard";
 import { useJobs } from "@/hooks/useJobs";
 import { Input } from "@/components/ui/input";
@@ -93,7 +93,7 @@ export default function JobsFeed() {
   };
 
   return (
-    <MainLayout>
+    <UserLayout>
       <section className="bg-gradient-to-br from-primary to-primary-deep text-primary-foreground py-12">
         <div className="container mx-auto px-4 md:px-6">
           <h1 className="font-heading font-extrabold text-3xl md:text-4xl mb-2">الوظائف المتاحة</h1>
@@ -236,6 +236,6 @@ export default function JobsFeed() {
           </nav>
         )}
       </section>
-    </MainLayout>
+    </UserLayout>
   );
 }

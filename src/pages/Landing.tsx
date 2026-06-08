@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, Wallet, MessageCircle, QrCode, Briefcase, Search, Star, Users, TrendingUp, type LucideIcon } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Button } from "@/components/ui/button";
 import heroImg from "@/assets/hero-workers.jpg";
 
@@ -25,7 +25,7 @@ const steps = [
 
 export default function Landing() {
   return (
-    <MainLayout>
+    <UserLayout>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-deep text-primary-foreground">
         <div className="absolute -top-32 -end-32 w-[500px] h-[500px] rounded-full bg-accent/20 blur-3xl" />
@@ -203,7 +203,7 @@ export default function Landing() {
           </div>
         </div>
       </section>
-    </MainLayout>
+    </UserLayout>
   );
 }
 

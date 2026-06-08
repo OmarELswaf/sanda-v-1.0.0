@@ -2,21 +2,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationsApi } from "@/api/notifications";
 import type { Notification } from "@/api/types";
 
-/** Get all notifications */
-export const useNotifications = () =>
+export const useNotifications = (role?: string) =>
   useQuery({
-    queryKey: ["notifications"],
-    queryFn: () => notificationsApi.list(),
+    queryKey: ["notifications", role],
+    queryFn: () => notificationsApi.list(role),
   });
 
-/** Get unread notifications count */
-export const useUnreadCount = () =>
+export const useUnreadCount = (role?: string) =>
   useQuery({
-    queryKey: ["notifications", "unread-count"],
-    queryFn: () => notificationsApi.unreadCount(),
+    queryKey: ["notifications", "unread-count", role],
+    queryFn: () => notificationsApi.unreadCount(role),
   });
 
-/** Mark a single notification as read */
 export const useMarkNotificationRead = () => {
   const qc = useQueryClient();
   return useMutation({
@@ -43,7 +40,6 @@ export const useMarkNotificationRead = () => {
   });
 };
 
-/** Mark all notifications as read */
 export const useMarkAllNotificationsRead = () => {
   const qc = useQueryClient();
   return useMutation({
@@ -67,7 +63,6 @@ export const useMarkAllNotificationsRead = () => {
   });
 };
 
-/** Delete a notification */
 export const useDeleteNotification = () => {
   const qc = useQueryClient();
   return useMutation({

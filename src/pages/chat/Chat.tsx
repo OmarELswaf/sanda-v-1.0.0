@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Paperclip, MessageCircle } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ export default function Chat() {
   const active = convos?.find((c) => c.id === activeId);
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 md:px-6 py-6 lg:py-10">
         <h1 className="font-heading font-extrabold text-3xl mb-6">المحادثات</h1>
         <div className="bg-card border border-border rounded-2xl overflow-hidden grid md:grid-cols-[320px_1fr] h-[70vh]">
@@ -113,6 +113,6 @@ export default function Chat() {
           )}
         </div>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

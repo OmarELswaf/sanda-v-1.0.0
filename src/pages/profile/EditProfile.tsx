@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,11 +23,11 @@ export default function EditProfile() {
 
   if (!user) {
     return (
-      <MainLayout>
+      <UserLayout>
         <div className="container mx-auto py-8 text-center text-muted-foreground">
           يرجى تسجيل الدخول لتعديل حسابك.
         </div>
-      </MainLayout>
+      </UserLayout>
     );
   }
 
@@ -65,7 +65,7 @@ export default function EditProfile() {
   };
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 py-8 max-w-2xl text-right" dir="rtl">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -163,6 +163,6 @@ export default function EditProfile() {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

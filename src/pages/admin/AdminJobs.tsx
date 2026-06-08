@@ -1,175 +1,442 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { Search, MapPin, Users, ExternalLink, Filter } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Eye, Pencil, Trash2, User, Star, MapPin } from "lucide-react";
 import AdminLayout from "@/layouts/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { AdminDataTable } from "@/components/admin/AdminDataTable";
+import type { Column } from "@/components/admin/AdminDataTable";
+import { Pagination } from "@/components/admin/Pagination";
+import { Search } from "@/components/admin/Search";
+import { FilterBar } from "@/components/admin/FilterBar";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { Modal } from "@/components/admin/Modal";
+import { ErrorState } from "@/components/admin/ErrorState";
+import { TableSkeleton } from "@/components/admin/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockJobs } from "@/lib/mock/data";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useJobsQuery, useUpdateJob, useDeleteJob } from "@/hooks/useAdminQueries";
 import type { Job, JobStatus } from "@/api/types";
 
-const STATUS_OPTIONS: { value: JobStatus | "all"; label: string }[] = [
-  { value: "all", label: "كل الحالات" },
+const CATEGORIES = [
+  "ضيافة وفعاليات",
+  "صيانة وتركيبات",
+  "تنظيف",
+  "مطاعم",
+  "تسويق ميداني",
+  "تصوير",
+];
+
+const STATUS_FILTERS = [
   { value: "open", label: "مفتوحة" },
   { value: "in-progress", label: "قيد التنفيذ" },
   { value: "completed", label: "مكتملة" },
   { value: "cancelled", label: "ملغاة" },
 ];
 
-const statusMeta: Record<JobStatus, { label: string; cls: string }> = {
-  open: { label: "مفتوحة", cls: "bg-success/10 text-success border-success/20" },
-  "in-progress": { label: "قيد التنفيذ", cls: "bg-warning/10 text-warning border-warning/20" },
-  completed: { label: "مكتملة", cls: "bg-muted text-muted-foreground border-border" },
-  cancelled: { label: "ملغاة", cls: "bg-destructive/10 text-destructive border-destructive/20" },
+const statusLabel: Record<JobStatus, string> = {
+  open: "مفتوحة",
+  "in-progress": "قيد التنفيذ",
+  completed: "مكتملة",
+  cancelled: "ملغاة",
 };
 
+const statusBadgeConfig: Record<JobStatus, { variant: "default" | "outline" | "destructive" | "secondary"; className?: string }> = {
+  open: { variant: "default" },
+  "in-progress": { variant: "outline", className: "bg-warning/10 text-warning border-warning/20" },
+  completed: { variant: "outline", className: "bg-success/10 text-success border-success/20" },
+  cancelled: { variant: "destructive" },
+};
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString("ar-EG", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export default function AdminJobs() {
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<JobStatus | "all">("all");
-  const [isLoading, setIsLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-  const filtered = useMemo(() => {
-    return mockJobs.filter((j) => {
-      const matchQ =
-        !query ||
-        j.title.includes(query) ||
-        j.city.includes(query) ||
-        j.category.includes(query) ||
-        j.employer.name.includes(query);
-      const matchS = status === "all" || j.status === status;
-      return matchQ && matchS;
+  const [viewJobId, setViewJobId] = useState<string | null>(null);
+  const [editJobId, setEditJobId] = useState<string | null>(null);
+  const [deleteJobId, setDeleteJobId] = useState<string | null>(null);
+
+  const query = useJobsQuery({
+    page,
+    pageSize,
+    search: search || undefined,
+    status: statusFilter || undefined,
+    category: categoryFilter || undefined,
+  });
+
+  const updateJob = useUpdateJob();
+  const deleteJob = useDeleteJob();
+
+  const jobs = query.data?.data ?? [];
+  const total = query.data?.total ?? 0;
+  const currentPage = query.data?.page ?? 1;
+  const currentPageSize = query.data?.pageSize ?? 10;
+
+  const viewJob = viewJobId ? jobs.find((j) => j.id === viewJobId) ?? null : null;
+
+  const [editForm, setEditForm] = useState({
+    title: "",
+    category: "",
+    city: "",
+    price: 0,
+    description: "",
+  });
+
+  const openEdit = useCallback((job: Job) => {
+    setEditJobId(job.id);
+    setEditForm({
+      title: job.title,
+      category: job.category,
+      city: job.city,
+      price: job.price,
+      description: job.description,
     });
-  }, [query, status]);
-
-  // Group by status for the dashboard summary
-  const byStatus = useMemo(() => {
-    const acc: Record<JobStatus, number> = { open: 0, "in-progress": 0, completed: 0, cancelled: 0 };
-    for (const j of mockJobs) acc[j.status]++;
-    return acc;
   }, []);
+
+  const handleUpdate = useCallback(async () => {
+    if (!editJobId) return;
+    await updateJob.mutateAsync({ id: editJobId, payload: editForm });
+    setEditJobId(null);
+  }, [editJobId, editForm, updateJob]);
+
+  const handleDelete = useCallback(async () => {
+    if (!deleteJobId) return;
+    await deleteJob.mutateAsync(deleteJobId);
+    setDeleteJobId(null);
+  }, [deleteJobId, deleteJob]);
+
+  const columns: Column<Job>[] = [
+    {
+      key: "title",
+      header: "الوظيفة",
+      render: (j) => (
+        <div>
+          <div className="font-semibold">{j.title}</div>
+          <div className="text-xs text-muted-foreground">{j.category}</div>
+        </div>
+      ),
+    },
+    {
+      key: "city",
+      header: "المدينة",
+      render: (j) => (
+        <span className="inline-flex items-center gap-1 text-muted-foreground">
+          <MapPin className="h-3 w-3" />
+          {j.city}
+        </span>
+      ),
+    },
+    {
+      key: "budget",
+      header: "الميزانية",
+      render: (j) => (
+        <span className="font-semibold text-primary">{j.price.toLocaleString()} ج</span>
+      ),
+    },
+    {
+      key: "postedBy",
+      header: "صاحب العمل",
+      render: (j) => (
+        <div className="flex items-center gap-1.5">
+          <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span>{j.employer?.name || "—"}</span>
+          {j.employer?.rating ? (
+            <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground">
+              <Star className="h-3 w-3 fill-accent text-accent" />
+              {j.employer.rating.toFixed(1)}
+            </span>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "الحالة",
+      render: (j) => {
+        const cfg = statusBadgeConfig[j.status];
+        return (
+          <Badge variant={cfg.variant} className={cfg.className}>
+            {statusLabel[j.status]}
+          </Badge>
+        );
+      },
+    },
+    {
+      key: "postedAt",
+      header: "تاريخ النشر",
+      render: (j) => (
+        <span className="text-muted-foreground text-xs">{formatDate(j.createdAt)}</span>
+      ),
+    },
+  ];
+
+  if (query.isError) {
+    return (
+      <AdminLayout>
+        <h1 className="font-heading font-extrabold text-3xl mb-2">إدارة الوظائف</h1>
+        <ErrorState
+          title="خطأ في تحميل الوظائف"
+          message={(query.error as Error)?.message || "حدث خطأ أثناء تحميل البيانات"}
+          onRetry={() => query.refetch()}
+        />
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
-      <h1 className="font-heading font-extrabold text-3xl mb-2">إدارة الوظائف</h1>
-      <p className="text-muted-foreground mb-6">{filtered.length} وظيفة</p>
-
-      {/* Summary chips */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
-        {(["open", "in-progress", "completed", "cancelled"] as JobStatus[]).map((s) => (
-          <button
-            key={s}
-            type="button"
-            onClick={() => setStatus(status === s ? "all" : s)}
-            className={`text-right bg-card border rounded-xl p-4 transition-all hover:border-primary/40 ${
-              status === s ? "border-primary" : "border-border"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <Badge variant="outline" className={statusMeta[s].cls}>
-                {statusMeta[s].label}
-              </Badge>
-            </div>
-            <div className="font-heading font-extrabold text-2xl">{byStatus[s]}</div>
-          </button>
-        ))}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
+        <div>
+          <h1 className="font-heading font-extrabold text-3xl mb-1">إدارة الوظائف</h1>
+          <p className="text-muted-foreground">{total} وظيفة</p>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Filter className="h-4 w-4" /> تصفية
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid sm:grid-cols-[1fr_220px] gap-3">
-            <div className="relative">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <Search
+          placeholder="ابحث بالعنوان، الفئة، أو المدينة..."
+          onSearch={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
+        />
+      </div>
+
+      <FilterBar
+        filters={[
+          {
+            key: "status",
+            label: "الحالة",
+            type: "select",
+            options: STATUS_FILTERS,
+            value: statusFilter,
+            onChange: (v) => {
+              setStatusFilter(v as string);
+              setPage(1);
+            },
+          },
+          {
+            key: "category",
+            label: "الفئة",
+            type: "select",
+            options: CATEGORIES.map((c) => ({ value: c, label: c })),
+            value: categoryFilter,
+            onChange: (v) => {
+              setCategoryFilter(v as string);
+              setPage(1);
+            },
+          },
+        ]}
+        onClearAll={() => {
+          setStatusFilter("");
+          setCategoryFilter("");
+          setPage(1);
+        }}
+      />
+
+      <div className="mt-4 bg-card border border-border rounded-2xl overflow-hidden">
+        {query.isLoading ? (
+          <TableSkeleton rows={8} columns={7} />
+        ) : (
+          <>
+            <AdminDataTable
+              data={jobs}
+              columns={columns}
+              emptyMessage="لا توجد وظائف مطابقة للبحث."
+              actions={(j) => (
+                <div className="flex items-center gap-1 justify-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setViewJobId(j.id)}
+                    aria-label={`عرض تفاصيل ${j.title}`}
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => openEdit(j)}
+                    aria-label={`تعديل ${j.title}`}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => setDeleteJobId(j.id)}
+                    aria-label={`حذف ${j.title}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              )}
+            />
+            {total > 0 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(total / currentPageSize)}
+                totalItems={total}
+                pageSize={currentPageSize}
+                onPageChange={setPage}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setPage(1);
+                }}
+              />
+            )}
+          </>
+        )}
+      </div>
+
+      <Modal
+        open={!!viewJobId}
+        onOpenChange={(open) => {
+          if (!open) setViewJobId(null);
+        }}
+        title="تفاصيل الوظيفة"
+        size="lg"
+      >
+        {viewJob && (
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-bold text-lg">{viewJob.title}</h3>
+              <Badge
+                variant={statusBadgeConfig[viewJob.status].variant}
+                className={statusBadgeConfig[viewJob.status].className}
+              >
+                {statusLabel[viewJob.status]}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="text-muted-foreground">الفئة:</span>
+                <p className="font-medium">{viewJob.category}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">المدينة:</span>
+                <p className="font-medium">{viewJob.city}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">الميزانية:</span>
+                <p className="font-medium text-primary">
+                  {viewJob.price.toLocaleString()} ج
+                </p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">تاريخ النشر:</span>
+                <p className="font-medium">{formatDate(viewJob.createdAt)}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">صاحب العمل:</span>
+                <p className="font-medium">{viewJob.employer?.name || "—"}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">المتقدمون:</span>
+                <p className="font-medium">{viewJob.applicantsCount}</p>
+              </div>
+            </div>
+            <div>
+              <span className="text-sm text-muted-foreground">الوصف:</span>
+              <p className="text-sm mt-1 bg-muted/50 rounded-lg p-3 leading-relaxed">
+                {viewJob.description}
+              </p>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        open={!!editJobId}
+        onOpenChange={(open) => {
+          if (!open) setEditJobId(null);
+        }}
+        title="تعديل الوظيفة"
+        size="lg"
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>عنوان الوظيفة</Label>
+            <Input
+              value={editForm.title}
+              onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label>الفئة</Label>
+              <select
+                value={editForm.category}
+                onChange={(e) => setEditForm((f) => ({ ...f, category: e.target.value }))}
+                className="h-9 w-full px-3 rounded-md border border-border bg-background text-sm"
+              >
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label>المدينة</Label>
               <Input
-                placeholder="ابحث بالعنوان، المدينة، الفئة، أو اسم صاحب العمل..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="pr-10"
+                value={editForm.city}
+                onChange={(e) => setEditForm((f) => ({ ...f, city: e.target.value }))}
               />
             </div>
-            <Select value={status} onValueChange={(v) => setStatus(v as JobStatus | "all")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
-        </CardContent>
-      </Card>
+          <div className="space-y-2">
+            <Label>الميزانية</Label>
+            <Input
+              type="number"
+              value={editForm.price}
+              onChange={(e) => setEditForm((f) => ({ ...f, price: Number(e.target.value) }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>الوصف</Label>
+            <Textarea
+              rows={4}
+              value={editForm.description}
+              onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setEditJobId(null)}>
+              إلغاء
+            </Button>
+            <Button onClick={handleUpdate} disabled={updateJob.isPending}>
+              {updateJob.isPending ? "جاري الحفظ..." : "حفظ التغييرات"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
-      {/* Table */}
-      <Card className="mt-6">
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-6 space-y-3">
-              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-14 rounded-lg" />)}
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="p-12 text-center text-muted-foreground">
-              مفيش وظائف مطابقة للبحث.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-right">
-                  <tr>
-                    <th className="px-4 py-3 font-semibold">الوظيفة</th>
-                    <th className="px-4 py-3 font-semibold">صاحب العمل</th>
-                    <th className="px-4 py-3 font-semibold">المدينة</th>
-                    <th className="px-4 py-3 font-semibold">السعر</th>
-                    <th className="px-4 py-3 font-semibold">المتقدمين</th>
-                    <th className="px-4 py-3 font-semibold">الحالة</th>
-                    <th className="px-4 py-3 font-semibold">إجراء</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {filtered.map((j: Job) => (
-                    <tr key={j.id} className="hover:bg-muted/20">
-                      <td className="px-4 py-3">
-                        <div className="font-semibold">{j.title}</div>
-                        <div className="text-xs text-muted-foreground">{j.category}</div>
-                      </td>
-                      <td className="px-4 py-3">{j.employer.name}</td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center gap-1 text-muted-foreground">
-                          <MapPin className="h-3 w-3" /> {j.city}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 font-semibold text-primary">{j.price} ج</td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center gap-1 text-muted-foreground">
-                          <Users className="h-3 w-3" /> {j.applicantsCount}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge variant="outline" className={statusMeta[j.status].cls}>
-                          {statusMeta[j.status].label}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/jobs/${j.id}`}>
-                            <ExternalLink className="h-3.5 w-3.5" /> فتح
-                          </Link>
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <ConfirmDialog
+        open={!!deleteJobId}
+        onOpenChange={(open) => {
+          if (!open) setDeleteJobId(null);
+        }}
+        title="حذف الوظيفة"
+        description={`هل أنت متأكد من حذف "${jobs.find((j) => j.id === deleteJobId)?.title}"؟ هذا الإجراء لا يمكن التراجع عنه.`}
+        confirmText="حذف"
+        cancelText="إلغاء"
+        variant="destructive"
+        loading={deleteJob.isPending}
+        onConfirm={handleDelete}
+      />
     </AdminLayout>
   );
 }

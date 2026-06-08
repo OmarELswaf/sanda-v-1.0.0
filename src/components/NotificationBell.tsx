@@ -15,8 +15,9 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { data: notifications, isLoading } = useNotifications();
-  const { data: unreadData } = useUnreadCount();
+  const role = user?.role;
+  const { data: notifications, isLoading } = useNotifications(role);
+  const { data: unreadData } = useUnreadCount(role);
   const markRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
   const deleteNotif = useDeleteNotification();
@@ -58,6 +59,7 @@ export default function NotificationBell() {
           notifications={notifications}
           isLoading={isLoading}
           unreadCount={unreadCount}
+          userRole={user?.role}
           onMarkRead={(id) => markRead.mutate(id)}
           onMarkAllRead={() => markAllRead.mutate()}
           onDelete={(id) => deleteNotif.mutate(id)}

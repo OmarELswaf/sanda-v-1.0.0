@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useJob } from "@/hooks/useJobs";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import RatingForm from "@/components/RatingForm";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, User } from "lucide-react";
@@ -13,24 +13,24 @@ export default function RateWorker() {
 
   if (isLoading) {
     return (
-      <MainLayout>
+      <UserLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-      </MainLayout>
+      </UserLayout>
     );
   }
 
   if (!job) {
     return (
-      <MainLayout>
+      <UserLayout>
         <div className="container mx-auto py-8 text-center">
           <p className="text-muted-foreground">الوظيفة غير موجودة</p>
           <Button className="mt-4" onClick={() => navigate(-1)}>
             العودة
           </Button>
         </div>
-      </MainLayout>
+      </UserLayout>
     );
   }
 
@@ -39,7 +39,7 @@ export default function RateWorker() {
   const workerName = job.worker?.name || "أحمد المصري";
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 py-8 max-w-lg">
         {/* Back navigation */}
         <div className="flex items-center gap-2 mb-6">
@@ -72,6 +72,6 @@ export default function RateWorker() {
           onSuccess={() => navigate(`/jobs/${job.id}`)}
         />
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MapPin, ShieldCheck, Calendar, Star, Briefcase, Pencil } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,7 @@ export default function Profile() {
   };
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 md:px-6 py-10 max-w-4xl">
         {/* Header */}
         <div className="bg-card border border-border rounded-2xl p-6 md:p-8 mb-6">
@@ -142,7 +142,7 @@ export default function Profile() {
         user={profileUser}
         onSave={handleProfileUpdate}
       />
-    </MainLayout>
+    </UserLayout>
   );
 }
 

@@ -13,7 +13,7 @@ import {
   Phone,
   MapPin,
 } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -71,7 +71,7 @@ const PILLARS = [
 
 export default function About() {
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 py-10 max-w-5xl" dir="rtl">
         {/* Hero */}
         <div className="text-center mb-12">
@@ -218,6 +218,6 @@ export default function About() {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

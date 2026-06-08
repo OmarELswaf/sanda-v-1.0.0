@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Briefcase } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,7 +45,7 @@ export default function PostJob() {
   };
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 md:px-6 py-10 max-w-3xl">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-12 h-12 rounded-xl bg-primary-soft flex items-center justify-center">
@@ -129,6 +129,6 @@ export default function PostJob() {
           </div>
         </form>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

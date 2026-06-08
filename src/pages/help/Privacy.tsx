@@ -1,5 +1,5 @@
 import { Lock, Eye, Database, Share2, Shield, Trash2, Mail } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -37,7 +37,7 @@ const principles = [
 
 export default function Privacy() {
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 py-10 max-w-3xl" dir="rtl">
         <div className="text-center mb-8">
           <Badge variant="outline" className="mb-3">
@@ -131,6 +131,6 @@ export default function Privacy() {
           آخر تحديث: 1 يونيو 2026 — الوثيقة دي بتتوافق مع قانون حماية البيانات الشخصية المصري رقم 151 لسنة 2020.
         </p>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

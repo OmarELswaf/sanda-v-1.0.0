@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import LocationPicker from "@/components/LocationPicker";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { useJob, useUpdateJob, useDeleteJob } from "@/hooks/useJobs";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -67,7 +67,7 @@ export default function EditJob() {
   // Authorisation — only the employer who owns the job may edit
   if (!isLoading && job && user && job.employerId !== user.id && user.role !== "admin") {
     return (
-      <MainLayout>
+      <UserLayout>
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="font-heading font-extrabold text-2xl mb-2">مش مسموح</h1>
           <p className="text-muted-foreground">إنت مش صاحب الوظيفة دي.</p>
@@ -75,7 +75,7 @@ export default function EditJob() {
             الرجوع للوظيفة
           </Button>
         </div>
-      </MainLayout>
+      </UserLayout>
     );
   }
 
@@ -115,32 +115,32 @@ export default function EditJob() {
 
   if (isLoading) {
     return (
-      <MainLayout>
+      <UserLayout>
         <div className="container mx-auto px-4 py-10 max-w-3xl space-y-4">
           <Skeleton className="h-10 w-2/3" />
           <Skeleton className="h-64 w-full" />
         </div>
-      </MainLayout>
+      </UserLayout>
     );
   }
 
   if (!job) {
     return (
-      <MainLayout>
+      <UserLayout>
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="font-heading font-extrabold text-2xl mb-2">الوظيفة مش موجودة</h1>
           <Button className="mt-4" onClick={() => navigate("/my-jobs")}>
             الرجوع لوظائفي
           </Button>
         </div>
-      </MainLayout>
+      </UserLayout>
     );
   }
 
   const canEditStatus = job.status === "open" || job.status === "cancelled";
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 md:px-6 py-10 max-w-3xl">
         <div className="flex items-center gap-3 mb-2">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="رجوع">
@@ -263,6 +263,6 @@ export default function EditJob() {
           </div>
         </form>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }

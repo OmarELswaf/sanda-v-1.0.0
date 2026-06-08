@@ -1,71 +1,78 @@
-import { useMemo, useState } from "react";
-import { Wallet, TrendingUp, TrendingDown, Search, Download, Filter, ArrowDownToLine, ArrowUpFromLine, Clock, CheckCircle2, type LucideIcon } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Download, Wallet, TrendingUp, TrendingDown, Banknote } from "lucide-react";
 import AdminLayout from "@/layouts/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockTransactions, mockUsers } from "@/lib/mock/data";
-import type { TransactionType } from "@/api/types";
+import { AdminDataTable, type Column } from "@/components/admin/AdminDataTable";
+import { Pagination } from "@/components/admin/Pagination";
+import { Search } from "@/components/admin/Search";
+import { FilterBar } from "@/components/admin/FilterBar";
+import { ErrorState } from "@/components/admin/ErrorState";
+import { TableSkeleton } from "@/components/admin/TableSkeleton";
+import { useWalletTransactionsQuery, useWalletStatsQuery } from "@/hooks/useAdminQueries";
+import type { WalletTransaction } from "@/api/types";
 
-const typeMeta: Record<TransactionType, { label: string; cls: string; sign: string }> = {
-  hold: { label: "محجوز", cls: "text-warning", sign: "" },
-  release: { label: "تحرير", cls: "text-success", sign: "+" },
-  withdraw: { label: "سحب", cls: "text-destructive", sign: "-" },
-  deposit: { label: "إيداع", cls: "text-success", sign: "+" },
-  refund: { label: "استرداد", cls: "text-success", sign: "+" },
-};
 
-const TYPE_OPTIONS: { value: TransactionType | "all"; label: string }[] = [
-  { value: "all", label: "كل العمليات" },
-  { value: "hold", label: "محجوز" },
-  { value: "release", label: "تحرير" },
-  { value: "withdraw", label: "سحب" },
+
+const TYPE_OPTIONS = [
+  { value: "all", label: "الكل" },
   { value: "deposit", label: "إيداع" },
+  { value: "withdraw", label: "سحب" },
+  { value: "hold", label: "رسوم" },
+  { value: "release", label: "دفعة" },
   { value: "refund", label: "استرداد" },
 ];
 
+function getAmountMeta(type: string) {
+  if (type === "deposit" || type === "release" || type === "refund") {
+    return { color: "text-green-600", prefix: "+" };
+  }
+  return { color: "text-red-600", prefix: "-" };
+}
+
+function formatCurrency(amount: number) {
+  return `${amount.toLocaleString()} ر.س`;
+}
+
 export default function AdminWallet() {
-  const [query, setQuery] = useState("");
-  const [type, setType] = useState<TransactionType | "all">("all");
-  const [isLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [resetKey, setResetKey] = useState(0);
 
-  const filtered = useMemo(() => {
-    return mockTransactions.filter((t) => {
-      const matchT = type === "all" || t.transactionType === type;
-      const job = t.jobId ? mockUsers.find((u) => u.id === t.walletId) : null;
-      const matchQ =
-        !query ||
-        t.id.includes(query) ||
-        (t.jobTitle ?? "").includes(query) ||
-        (job?.name ?? "").includes(query);
-      return matchT && matchQ;
-    });
-  }, [query, type]);
+  const {
+    data: response,
+    isLoading,
+    isError,
+    refetch,
+  } = useWalletTransactionsQuery({
+    page,
+    pageSize,
+    search: search || undefined,
+    type: typeFilter || undefined,
+  });
 
-  // Summary
-  const summary = useMemo(() => {
-    let totalIn = 0;
-    let totalOut = 0;
-    let held = 0;
-    for (const t of mockTransactions) {
-      if (t.transactionType === "release" || t.transactionType === "deposit" || t.transactionType === "refund") {
-        totalIn += t.amount;
-      } else if (t.transactionType === "withdraw") {
-        totalOut += t.amount;
-      } else if (t.transactionType === "hold") {
-        held += t.amount;
-      }
-    }
-    return { totalIn, totalOut, held };
-  }, []);
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isError: statsError,
+    refetch: refetchStats,
+  } = useWalletStatsQuery();
 
-  const handleExport = () => {
+  const transactions: WalletTransaction[] = response?.data ?? [];
+  const totalItems = response?.total ?? 0;
+  const actualPage = response?.page ?? page;
+  const actualPageSize = response?.pageSize ?? pageSize;
+
+  const totalPages = Math.max(1, Math.ceil(totalItems / actualPageSize));
+
+  const handleExport = useCallback(() => {
     const rows = [
       ["id", "amount", "type", "status", "createdAt", "jobTitle"].join(","),
-      ...filtered.map((t) => [t.id, t.amount, t.transactionType, t.paymentStatus, t.createdAt, `"${t.jobTitle ?? ""}"`].join(",")),
+      ...transactions.map((t: WalletTransaction) =>
+        [t.id, t.amount, t.transactionType, t.paymentStatus, t.createdAt, `"${t.jobTitle ?? ""}"`].join(",")
+      ),
     ];
     const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -74,147 +81,183 @@ export default function AdminWallet() {
     a.download = `sanda-transactions-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  };
+  }, [transactions]);
+
+  const handleClearFilters = useCallback(() => {
+    setTypeFilter("");
+    setSearch("");
+    setPage(1);
+    setResetKey((k) => k + 1);
+  }, []);
+
+  const columns: Column<WalletTransaction>[] = [
+    {
+      key: "id",
+      header: "رقم المعاملة",
+      render: (t) => <span className="font-mono text-xs text-muted-foreground">{t.id}</span>,
+    },
+    {
+      key: "userName",
+      header: "المستخدم",
+      render: () => <span className="text-muted-foreground">—</span>,
+    },
+    {
+      key: "transactionType",
+      header: "النوع",
+      render: (t) => {
+        const label = TYPE_OPTIONS.find((o) => o.value === t.transactionType)?.label ?? t.transactionType;
+        return <span>{label}</span>;
+      },
+    },
+    {
+      key: "amount",
+      header: "المبلغ",
+      render: (t) => {
+        const { color, prefix } = getAmountMeta(t.transactionType);
+        return (
+          <span className={`font-semibold ${color}`}>
+            {prefix}{formatCurrency(t.amount)}
+          </span>
+        );
+      },
+    },
+    {
+      key: "jobTitle",
+      header: "الوظيفة",
+      render: (t) => t.jobTitle || "—",
+    },
+    {
+      key: "createdAt",
+      header: "التاريخ",
+      render: (t) =>
+        t.createdAt
+          ? new Date(t.createdAt).toLocaleDateString("ar-EG", { dateStyle: "short" })
+          : "—",
+    },
+  ];
+
+  const filterConfigs = [
+    {
+      key: "type",
+      label: "نوع المعاملة",
+      type: "select" as const,
+      options: TYPE_OPTIONS.filter((o) => o.value !== "all"),
+      value: typeFilter,
+      onChange: (v: string | string[]) => {
+        setTypeFilter(v as string);
+        setPage(1);
+      },
+    },
+  ];
 
   return (
     <AdminLayout>
       <h1 className="font-heading font-extrabold text-3xl mb-2">إدارة المحفظة</h1>
       <p className="text-muted-foreground mb-6">المدفوعات، الضمان، وسجل المعاملات المالية</p>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-        <KpiCard
-          icon={TrendingUp}
-          label="إجمالي الداخل"
-          value={`${summary.totalIn.toLocaleString()} ج`}
-          cls="bg-success/10 text-success"
+      {/* Stats Cards */}
+      {statsError ? (
+        <ErrorState onRetry={refetchStats} />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">إجمالي الودائع</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : formatCurrency(stats?.totalDeposits ?? 0)}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">إجمالي السحوبات</CardTitle>
+              <TrendingDown className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : formatCurrency(stats?.totalWithdrawals ?? 0)}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">إيرادات المنصة</CardTitle>
+              <Banknote className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : formatCurrency(stats?.platformRevenue ?? 0)}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">الرصيد الحالي</CardTitle>
+              <Wallet className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : formatCurrency(stats?.currentBalance ?? 0)}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Top Bar: Search + FilterBar + Export */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
+        <Search
+          key={resetKey}
+          placeholder="بحث عن وظيفة..."
+          onSearch={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
+          defaultValue={search}
         />
-        <KpiCard
-          icon={TrendingDown}
-          label="إجمالي الخارج"
-          value={`${summary.totalOut.toLocaleString()} ج`}
-          cls="bg-destructive/10 text-destructive"
-        />
-        <KpiCard
-          icon={Wallet}
-          label="مبالغ محجوزة (Escrow)"
-          value={`${summary.held.toLocaleString()} ج`}
-          cls="bg-warning/10 text-warning"
-        />
+        <div className="flex items-center gap-2 flex-wrap">
+          <FilterBar filters={filterConfigs} onClearAll={handleClearFilters} />
+          <Button variant="outline" onClick={handleExport} aria-label="تصدير البيانات إلى CSV">
+            <Download className="h-4 w-4 ml-2" />
+            تصدير CSV
+          </Button>
+        </div>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Filter className="h-4 w-4" /> تصفية العمليات
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid sm:grid-cols-[1fr_220px_auto] gap-3">
-            <div className="relative">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="ابحث برقم العملية، الوظيفة، أو اسم المستخدم..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="pr-10"
-              />
-            </div>
-            <Select value={type} onValueChange={(v) => setType(v as TransactionType | "all")}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {TYPE_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button variant="outline" onClick={handleExport}>
-              <Download className="h-4 w-4" /> تصدير CSV
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Table */}
-      <Card className="mt-6">
+      <Card>
         <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-6 space-y-3">
-              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-14 rounded-lg" />)}
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="p-12 text-center text-muted-foreground">
-              مفيش عمليات مطابقة.
-            </div>
+          {isError ? (
+            <ErrorState onRetry={refetch} />
+          ) : isLoading ? (
+            <TableSkeleton rows={5} columns={6} />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-right">
-                  <tr>
-                    <th className="px-4 py-3 font-semibold">رقم</th>
-                    <th className="px-4 py-3 font-semibold">المستخدم</th>
-                    <th className="px-4 py-3 font-semibold">الوظيفة</th>
-                    <th className="px-4 py-3 font-semibold">النوع</th>
-                    <th className="px-4 py-3 font-semibold">المبلغ</th>
-                    <th className="px-4 py-3 font-semibold">الحالة</th>
-                    <th className="px-4 py-3 font-semibold">التاريخ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {filtered.map((t) => {
-                    const m = typeMeta[t.transactionType];
-                    const user = mockUsers.find((u) => u.id === t.walletId);
-                    return (
-                      <tr key={t.id} className="hover:bg-muted/20">
-                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{t.id}</td>
-                        <td className="px-4 py-3">{user?.name ?? "—"}</td>
-                        <td className="px-4 py-3">{t.jobTitle ?? "—"}</td>
-                        <td className="px-4 py-3">
-                          <span className="inline-flex items-center gap-1">
-                            {t.transactionType === "withdraw" ? <ArrowDownToLine className="h-3 w-3" /> :
-                             t.transactionType === "deposit" ? <ArrowUpFromLine className="h-3 w-3" /> :
-                             t.transactionType === "hold" ? <Clock className="h-3 w-3" /> :
-                             <CheckCircle2 className="h-3 w-3" />}
-                            {m.label}
-                          </span>
-                        </td>
-                        <td className={`px-4 py-3 font-semibold ${m.cls}`}>
-                          {m.sign}{t.amount} ج
-                        </td>
-                        <td className="px-4 py-3">
-                          <Badge variant="outline" className={t.paymentStatus === "completed" ? "bg-success/10 text-success border-success/20" : t.paymentStatus === "pending" ? "bg-warning/10 text-warning border-warning/20" : "bg-destructive/10 text-destructive border-destructive/20"}>
-                            {t.paymentStatus === "completed" ? "مكتمل" : t.paymentStatus === "pending" ? "قيد المعالجة" : "فشل"}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">
-                          {new Date(t.createdAt).toLocaleDateString("ar-EG", { dateStyle: "short" })}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <AdminDataTable
+              data={transactions}
+              columns={columns}
+              emptyMessage="لا توجد معاملات مطابقة"
+            />
           )}
         </CardContent>
       </Card>
-    </AdminLayout>
-  );
-}
 
-function KpiCard({ icon: Icon, label, value, cls }: { icon: LucideIcon; label: string; value: string; cls: string }) {
-  return (
-    <Card>
-      <CardContent className="p-5 flex items-center gap-4">
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${cls}`}>
-          <Icon className="h-5 w-5" />
-        </div>
-        <div>
-          <div className="text-xs text-muted-foreground">{label}</div>
-          <div className="font-heading font-extrabold text-2xl">{value}</div>
-        </div>
-      </CardContent>
-    </Card>
+      {/* Pagination */}
+      {!isLoading && !isError && totalItems > 0 && (
+        <Pagination
+          currentPage={actualPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          pageSize={actualPageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
+      )}
+    </AdminLayout>
   );
 }

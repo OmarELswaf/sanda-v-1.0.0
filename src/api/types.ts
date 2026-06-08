@@ -206,13 +206,14 @@ export interface Report {
 
 export interface Notification {
   id: string;
-  userId: string;
   title: string;
-  body: string;
-  type: "job" | "application" | "message" | "payment" | "system" | "sos";
+  message: string;
+  type: "job" | "user" | "report" | "system";
+  roleTarget: "admin" | "user" | "worker" | "all";
   isRead: boolean;
   createdAt: string;
-  metadata?: Record<string, unknown>; // Extra data (jobId, etc.)
+  metadata?: Record<string, unknown>;
+  userId?: string;
 }
 
 // ============================================================================

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
-import MainLayout from "@/layouts/MainLayout";
+import UserLayout from "@/layouts/UserLayout";
 import { useMyJobs } from "@/hooks/useJobs";
 import JobCard from "@/components/jobs/JobCard";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ export default function MyJobs() {
   const { data: jobs, isLoading } = useMyJobs();
 
   return (
-    <MainLayout>
+    <UserLayout>
       <div className="container mx-auto px-4 md:px-6 py-10">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -56,6 +56,6 @@ export default function MyJobs() {
           })}
         </Tabs>
       </div>
-    </MainLayout>
+    </UserLayout>
   );
 }
